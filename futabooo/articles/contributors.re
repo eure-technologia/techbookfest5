@@ -1,4 +1,8 @@
 = 著者紹介
 
-==== 第1章 ひつじ / @mhidaka
-ひつじだよ〜
+== 著者 / @futabooo
+futaboooだよ〜
+
+
+== 表紙イラスト / @karin
+karinだよ〜
