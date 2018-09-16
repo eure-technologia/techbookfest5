@@ -9,31 +9,32 @@ Widgetと聞いて最初に想像するのはどんなものでしょうか。�
 アプリ一覧からアプリを起動することなく、そのアプリの機能を使ったりアプリが保有する情報を表示したりすることができるのがWidgetです。この章ではそんなWidgetにはどんな種類があり開発する場合に必要となってくるベースとなる知識についてご紹介していきます。
 
 == Widgetの種類
+Android Developrの公式ドキュメント@<href>{https://developer.android.com/guide/topics/appwidgets/overview}によるとWidgetの種類は大きく4つに分けることができます。
 
-=== Information widgets
+=== Information Widgets
+ひとつめはInformation widgetsです。
+ユーザーにとって重要な特定の情報を時間経過と共に変化させながら表示させることに向いています。
+たとえば天気Widgetや時計Widgetなどが良い例です。
+#@# TODO: Infomation Widgetsの例となる端末のスクショを添付する
 
-=== Collection widgets
+=== Collection Widgets
 
-=== Control widgets
+=== Control Widgets
 
-=== Hybrid widgets
+=== Hybrid Widgets
 
 == Widgetで使えるViewの種類
 
 === ViewGroup
+Widgetに使えるViewGroupは次の4つです。
+
+ * FrameLayout
+ * LinearLayout
+ * RelativeLayout
+ * GridLayout
 
 === View
 
 == Widget開発で登場するクラス
 
 == Widgetのlifecycle
-
-= Widgetを作る
-
-== Sample WidgetをAndroidStudioで簡単に作る
-
-== 既存のアプリにWidgetを追加する
-
-== Githab APIを使ったWidgetを作る
-
-= イケてるWidget紹介

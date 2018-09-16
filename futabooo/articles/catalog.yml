@@ -2,7 +2,8 @@ PREDEF:
   - preface.re
 
 CHAPS:
-  - article.re
+  - about-widget.re
+  - create-widget.re
 
 APPENDIX:
 
