@@ -21,9 +21,9 @@
     "global-bundler": "gem install bundler",
     "global": "npm run global-bundler",
     "postinstall": "bundle install",
-    "pdf": "grunt pdf",
-    "md": "grunt markdown",
-    "html": "grunt html",
+    "pdf": "node_modules/grunt/bin/grunt pdf",
+    "md": "node_modules/grunt/bin/grunt markdown",
+    "html": "node_modules/grunt/bin/grunt html",
     "test": "npm run html"
   },
   "dependencies": {},
