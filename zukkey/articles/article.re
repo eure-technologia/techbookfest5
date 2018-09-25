@@ -55,7 +55,9 @@ AndroidStudioで開発を始めるにはいくつか準備が必要です。
 AndroidStudioはversion3.1以上のものをインストールしてください。
 AndroidStudio > About AndroidStudioから次の画像のようにバージョンの確認ができます。
 
-// techbookfest5-1の画像を載せる
+//image[techbookfest5-1][AndroidStudioのバージョン確認画面]{
+    techbookfest5-1
+//}
 
 エミュレータを利用する場合には、Android Emulator27.2.9以上が必要です。
 また、エミュレータでOpenGL ES 3.0以上をサポートし、有効にする必要があります。
@@ -184,10 +186,16 @@ GCPを経由してアンカーを作って、出現させたオブジェクト�
 次の説から、具体的にどういったことができるのかなどを解説して行きます。
 
 == Sceneform
-Sceneformを用いることで、Androidの標準のWidget(TextView, ImageView, etc..)などを表示したり、図形の表示したり、3Dモデルを表示することが可能です。
+Sceneformを用いることで、3Dモデルを表示したり、Androidの標準のWidget(TextView, ImageView, etc..)などを表示したり、図形の表示することが可能です。
+この章では、それぞれについて導入から説明して行きます。
+
+=== 3Dモデルの表示
 
 3Dモデルを用意するのが難しい場合は、Google公式で次のサイトから3Dモデルを利用することが可能です。
-// TODO: poly01画像を出す
+//image[poly01][Poly - 無料の3Dオブジェクトライブラリ]{
+    poly01
+//}
+
 
 @<href>{https://poly.google.com/, Poly}
 Polyは、GoogleがARまたはVR開発者向けに用意してくれている無料の3Dオブジェクトライブラリです。
@@ -197,13 +205,46 @@ Polyでは、3Dモデルの作成は難しいがARを表示するのに手軽に
 3Dモデルを導入する前に、プラグインをAndroidStudioに入れる必要があります。
 AndroidStudioのPreferencesのPlugins > Browse repositoriesにてGoogle Sceneform Toolsと検索してください。
 検索した結果が次のようになると思います。
-// TODO: plugin01の画像をはる
+
+//image[plugin01][Google Sceneform Tools検索時]{
+    plugin01
+//}
+
 installしていない場合は、installと表記が出るのでinstallをクリックしてpluginをインストールしましょう。
 Google Sceneform Toolsは、任意の3DモデルのobjファイルやfbxファイルなどをAndroidStudioに簡単に入れることができたり、実際に動かす前にViewerで表示の確認をすることができたり、
 build.gradleの依存関係を自動的に追加してくれるプラグインになります。
 
 Polyからダウンロードしてきたobjファイルを、実際にプロジェクトに追加して表示するところまでやっていきましょう。
-// 手順書く
+まず、@<href>{https://poly.google.com/, Poly}から好みのobjファイルをダウンロードしてきましょう。
+
+次に、AndroidStudioでappフォルダを右クリックして New > Sample Data Directoryを選択してください。
+そうすると、sampledataというディレクトリが追加されます。その次にsampledataを右クリックして、New > Sceneform Assetを選択します。
+選択した後、次の画像のようにImport Wizardが出てきます。
+//image[Sceneform01][選択前のImport Wizard]{
+    Sceneform01
+//}
+
+Import Wizardには、４つの項目がありますが、ここではSource Asset Pathと.sfb Output Pathを設定します。
+Source Asset Pathでは、先ほどダウンロードしてきたobjファイルを選択し、.sfb Output Pathではassetsもしくはres配下にrawフォルダを追加してrawのPathを設定します。
+今回は、res配下にてrawフォルダを追加してPathを設定していきます。
+ここまで設定をすると、次の画像のようになります。
+
+//image[Sceneform02][選択後のImport Wizard]{
+    Sceneform02
+//}
+
+OKを選択すると、appのbuild.gradleに次のコードが追加され、res > raw配下に.sfbファイルが自動的に追加されます。
+//emlist[][]{
+  sceneform.asset('sampledata/archive.obj',
+          'default',
+          'sampledata/archive.sfa',
+          'src/main/res/raw/archive')
+//}
+
+これで、objファイルをAndroidStudioに入れることができました。
+
+ここから、実際に導入したobjファイルをARとして表示していきましょう。
+
 
 
 === Android標準のWidgetの表示
@@ -217,8 +258,6 @@ AndroidのWidgetを表示する前に3Dモデルや図形の表示を行う際�
 
 === 図形の表示
 
-
-=== 3Dモデルの表示
 
 
 == Argumented Images
