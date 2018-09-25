@@ -43,10 +43,12 @@
 ARCoreとは、Googleが提供しているSDKです。AR機能に必須のモーショントラッキングや環境、
 光の加減など全てサポートしてくれておりSDKを利用することで既存のアプリケーションいAR機能を搭載したり、新しいARアプリケーションを構築することができます。
 公式の概要は下記リンクを参照してください。
-> https://developers.google.com/ar/develop/
+@<href>{公式リンク: https://developers.google.com/ar/develop/, https://developers.google.com/ar/develop/}
 
 == AndroidStudioで開発するための準備
 AndroidStudioで開発を始めるにはいくつか準備が必要です。
+すでに準備が整っている場合や公式のドキュメントを読んだことがある方は、スキップしていただいて結構です。
+この説では、公式のドキュメントの意訳が中心になります。
 
 === 開発環境をセットアップする
 まずは、開発環境を整えていきましょう。
@@ -58,12 +60,12 @@ AndroidStudio > About AndroidStudioから次の画像のようにバージョン
 エミュレータを利用する場合には、Android Emulator27.2.9以上が必要です。
 また、エミュレータでOpenGL ES 3.0以上をサポートし、有効にする必要があります。
 
-ARCoreを利用するために下記の３点を設定する必要があります。
+ARCoreを利用するために下記の3点を設定する必要があります。
 1. AndroidManifestを設定する
 2. ビルドの依存関係を追加する
-3. カメラのパーミッションを許可する
+3. ランタイムチェックを実行して、カメラのパーミッションを許可する
 
-=== AndroidManifestを設定する
+==== AndroidManifestを設定する
 AR機能を利用するために、まずはじめにAndroidManifestの設定を行う必要があります。
 AR機能を必須にする場合と、必須にしない場合によって設定する項目が違います。
 
@@ -100,11 +102,69 @@ AR機能を必須にしないで、機能の１つとして追加したい場合
 //}
 
 
-=== ビルドの依存関係を追加する
+==== ビルドの依存関係を追加する
+まずはじめに、プロジェクトのbuild.gradleの中が次のようになっているのを確認してください。
+//emlist[][]{
+  allprojects {
+    repositories {
+        ...
+        google()
+        ...
+    }
+}
+//}
+...は省略を意味しています。google()がrepositoriesの中にあれば大丈夫です。
 
+次に、appのbuild.gradleの中にてARCoreのライブラリの最新バージョンを追加してください。
+2018年10月現在の最新バージョンは1.4.0になります。
+最新バージョンの確認は次のリンク先のgithubのreleasesから確認できます。
+@<href>{https://github.com/google-ar/arcore-android-sdk/releases, https://github.com/google-ar/arcore-android-sdk/releases}
 
+==== ランタイムチェックを実行して、カメラのパーミッションを許可する
+AR機能をオプションとして設定した場合には、ランタイムチェックを実行する必要があります。AR機能を必須とした場合は必要ありません。
+AR機能を利用する前に、AR機能を利用できる端末をチェックする必要があります。
+次のようにしてランタイムチェックを行います。
+//emlist[][]{
+  ArCoreApk.Availability availability = ArCoreApk.getInstance().checkAvailability(this);
+  if (availability.isSupported()) {
+    // 許可されている場合の処理をここに記載する
+  } else {
+    // 許可されていない場合の処理をここに記載する
+  }
+//}
+checkAvailabilityを呼ぶことでAR機能を利用できる端末かチェックでき、サポートされているかどうかをisSupportedで確認することができます。
+サポートされている場合とそうではない場合に分けて、表示非表示などの書きたい処理を書いてください。
 
+次に、ARCoreではカメラを利用するので、カメラのパーミッションを許可する必要があります。
+前節のAndroidManifestを設定するにも記載してありますが、AndroidManifest内に次のようにカメラのパーミッションの記載があることを確認してください。
+//emlist[][]{
+  <manifest…/>
+  …
+  <uses-permission android:name="android.permission.CAMERA" />
+  …
+  </manifest>
+//}
+manifestタグの中に記載されていれば大丈夫です。
 
+また、onResumeにARセッションを始める前に、カメラの許可が付与されているかを確認する処理を次のように記載しましょう。
+//emlist[][]{
+  @Override
+  protected void onResume() {
+    super.onResume();
+
+    ...
+    if (!CameraPermissionHelper.hasCameraPermission(this)) {
+      CameraPermissionHelper.requestCameraPermission(this);
+      return;
+    }
+
+    …
+  }
+//}
+
+これで、カメラのパーミッションの許可については終わりです。
+公式のドキュメントにも書かれていますが、ARCoreがインストールされているかをチェックする必要が場合によって出てきますがSceneformを利用している今回のような場合では、
+ArFragmentが自動的に行ってくれているために言及しません。
 
 
 == ARCoreでできること
