@@ -184,13 +184,27 @@ GCPを経由してアンカーを作って、出現させたオブジェクト�
 次の説から、具体的にどういったことができるのかなどを解説して行きます。
 
 == Sceneform
-Sceneformを用いることで、3Dモデルを表示したり、Androidの標準のWidget(TextView, ImageView, etc..)などを表示することが可能です。
+Sceneformを用いることで、Androidの標準のWidget(TextView, ImageView, etc..)などを表示したり、図形の表示したり、3Dモデルを表示することが可能です。
+
 3Dモデルを用意するのが難しい場合は、Google公式で次のサイトから3Dモデルを利用することが可能です。
 // TODO: poly01画像を出す
+
 @<href>{https://poly.google.com/, Poly}
 Polyは、GoogleがARまたはVR開発者向けに用意してくれている無料の3Dオブジェクトライブラリです。
 Polyでは、3Dモデルの作成は難しいがARを表示するのに手軽に試したい技術者向けにobjファイルやfbxファイルなど、ARやVRに用いることができるサンプルをダウンロードすることができます。
 サンプルには著作権がある場合があるので、目的によって表記を忘れずにつけるようにしてください。
+
+3Dモデルを導入する前に、プラグインをAndroidStudioに入れる必要があります。
+AndroidStudioのPreferencesのPlugins > Browse repositoriesにてGoogle Sceneform Toolsと検索してください。
+検索した結果が次のようになると思います。
+// TODO: plugin01の画像をはる
+installしていない場合は、installと表記が出るのでinstallをクリックしてpluginをインストールしましょう。
+Google Sceneform Toolsは、任意の3DモデルのobjファイルやfbxファイルなどをAndroidStudioに簡単に入れることができたり、実際に動かす前にViewerで表示の確認をすることができたり、
+build.gradleの依存関係を自動的に追加してくれるプラグインになります。
+
+Polyからダウンロードしてきたobjファイルを、実際にプロジェクトに追加して表示するところまでやっていきましょう。
+// 手順書く
+
 
 === Android標準のWidgetの表示
 Androidで標準で用意されている、Widgetの表示をARとして表示させることができます。
