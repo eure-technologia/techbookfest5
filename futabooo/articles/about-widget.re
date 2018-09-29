@@ -64,18 +64,22 @@ Widgetに使えるViewは次の12個です。
 
 ==== AdapterViewFlipper
 AdapterViewFlipperに追加された2つまたはそれ以上のView間をアニメーションさせることができるViewです。1度に1つのViewしか表示されません。設定することで定期的にアニメーションを実行して表示されるViewを切り替えることが可能です。
+ViewPagerのような動きをWidgetでも実現したい時に使えそうなViewです。
 
 ==== AnalogClock
-
+AnalogClockは名前のとおりアナログ時計を表示するためのViewです。アナログ時計とは、時針・分針・秒針の針の向きで時刻を表示する時計のことです。新しい端末を買ってきた時にホーム画面にアナログ時計のWidgetが配置済なこともあるので、よく見るWidgetに使われているViewです。
+しかしこのViewはAPI level 23からDeprecatedになっています。
 
 ==== Chronometer
+Chromometerはタイマーを表示するためのViewです。カップラーメンを作る3分を計りたい時などなどに便利なViewです。Interfaceもシンプルなので単純なタイマーを作りたい場合はこのViewを使うだけで実現が可能です。一方で複雑なことを実現するためには物足りない感じもするので、その場合はTextViewなどで表示のみ行い、ロジックなどは自前で実装することになります。
 
 ==== StackView
+StackViewは重なって表示されるカードを表示するためのViewです。Google Play BooksのWidgetでも使われています。このViewを使ったWidgetは使える場面が多数ありそうなので、@<chapref>{create-widget}でも紹介します。
 
 ==== ViewFlipper
+ViewFlipperはAdaperViewFlipperと同じViewを提供すると考えて差し支えありません。しかしこの2つには明確な違いも存在しています。ViewFlipperを使う場合は子Viewをいくつ用意するのかをViewFlipperを呼び出す前に決めておく必要があります。またViewの切り替えが発生した際にViewのリサイクルが実行されないのがViewFlipperです。AdaperViewFlipperの場合は、普段私達がListViewやGridViewを表示するのと同様にAdapterを通してデータの変更が可能です。またViewの切替時にViewのリサイクルが実行されます。多くの子Viewを表示したい場合はAdapterViewFlipperを使い、そうじゃないシンプルな用途の場合にはViewFlipperを使うようにするとよさそうです。
 
 == Widget開発で登場するクラス
 
-== Widgetのlifecycle
 
-====
+== Widgetのlifecycle

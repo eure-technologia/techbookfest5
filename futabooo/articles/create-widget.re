@@ -5,3 +5,5 @@
 == 既存のアプリにWidgetを追加する
 
 == Githab APIを使ったWidgetを作る
+
+== StackViewを使ったWidgetを作る
