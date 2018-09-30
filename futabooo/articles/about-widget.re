@@ -80,6 +80,55 @@ StackViewは重なって表示されるカードを表示するためのViewで�
 ViewFlipperはAdaperViewFlipperと同じViewを提供すると考えて差し支えありません。しかしこの2つには明確な違いも存在しています。ViewFlipperを使う場合は子Viewをいくつ用意するのかをViewFlipperを呼び出す前に決めておく必要があります。またViewの切り替えが発生した際にViewのリサイクルが実行されないのがViewFlipperです。AdaperViewFlipperの場合は、普段私達がListViewやGridViewを表示するのと同様にAdapterを通してデータの変更が可能です。またViewの切替時にViewのリサイクルが実行されます。多くの子Viewを表示したい場合はAdapterViewFlipperを使い、そうじゃないシンプルな用途の場合にはViewFlipperを使うようにするとよさそうです。
 
 == Widget開発で登場するクラス
+Widget開発をする際に登場するクラスは次のとおりです。
 
+ * AppWidgetProvider
+ * AppWidgetManager
+ * AppWidgetProviderInfo
+ * RemoteViews
+
+==== AppWidgetProvider
+BroadcastReceiverを継承しているWidget向けに便利なメソッドだけにしたクラスです。Widget開発といったらこのクラスをメインでいじることになります。SystemやUserの操作によって発生するイベントを取得するのが仕事です。イベントを取得した後はこのあと紹介するAppWidgetMangerを通してViewの更新を行います。
+AppWidgetProviderを使ってできることはBrodcastReceiverを使ってもできます。しかしAppWidgetProviderを使ったほうがより直感的に実装することが可能となるので、あえてつかわないという手は無いでしょう。
+
+==== AppWidgetManager
+WidgetのViewを更新します。またインストールされているAppWidgetProviderInfoの値を取得したり、Widget関連の情報の取得も行います。
+
+==== AppWidgetProviderInfo
+インストールされているAppWidgetProviderのメタデータを扱うクラスです。Widgetを開発する際は@<list>{infomation widget provider}のように@<strong>{appwidget-provider}タグを使って記述し、@<strong>{res/xml}配下に保存して使用します。
+//list[infomation widget provider][AppWidgetProviderInfoの扱うメタデータの例][xml]{
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:initialKeyguardLayout="@layout/infomation_widget"
+    android:initialLayout="@layout/infomation_widget"
+    android:minHeight="40dp"
+    android:minWidth="40dp"
+    android:previewImage="@drawable/example_appwidget_preview"
+    android:resizeMode="horizontal|vertical"
+    android:updatePeriodMillis="86400000"
+    android:widgetCategory="home_screen"
+    >
+</appwidget-provider>
+//}
+
+==== RemoteViews
+@<hd>{Widgetで使えるViewの種類}で紹介したViewたちを扱うためのクラスです。Widgetで使っているViewを取得する場合に@<list>{remoteviews}のようにして使用します。さらに取得したRemoteViewInstanceを使用して、@<list>{setTextViewText}のようにTextViewにテキストをセットするようなことも可能です。
+//list[remoteviews][WidgetのViewを取得][kotlin]{
+val views = RemoteViews(context.packageName, R.layout.infomation_widget)
+//}
+
+//list[setTextViewText][WidgetのTextViewにtextをセット][kotlin]{
+/**
+ * Equivalent to calling {@link TextView#setText(CharSequence)}
+ *
+ * @param viewId The id of the view whose text should change
+ * @param text The new text for the view
+ */
+public void setTextViewText(int viewId, CharSequence text) {
+    setCharSequence(viewId, "setText", text);
+}
+//}
+他にもView周りに対してなにか変更をくわえる場合にはRemoteViewのお世話になります。一度は目を通しておいたほうがいいクラスです。
 
 == Widgetのlifecycle
