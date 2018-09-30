@@ -25,7 +25,7 @@ SPA(Single Page Application)に関わらず、Web上にあるコンテンツの�
 例えば、AndroidアプリやiOSアプリなどのネイティブ版に併せてSP版（スマートフォンブラウザ向けのWeb版）も提供しているWebサービスなどでは、インストールに時間がかかりユーザーが離脱してしまうネイティブ版に変わってSP版がユーザーの玄関口としての役割を果たす事でしょう。
 
 そうした状況ではページの表示速度や応答速度がユーザーの離脱率に直結し、パフォーマンスの改善による大きな効果が期待できます@<fn>{fn_why_performance_matters}。
-//footnote[fn_why_performance_matters][パフォーマンス向上による恩恵についてより詳しく知りたければ、WebFundamentalsによる"Why Performance Matters" - https://developers.google.com/web/fundamentals/performance/why-performance-matters を一読する事をおすすめします。]
+//footnote[fn_why_performance_matters][パフォーマンス向上による恩恵についてより詳しく知りたければ、 WebFundamentals による"Why Performance Matters" - https://developers.google.com/web/fundamentals/performance/why-performance-matters を一読する事をおすすめします。]
 
 この、ユーザーに長時間のインストール時間を負担させる事もなく、ネイティブアプリに近いユーザー体験をユーザーにもたらすニーズを実現するものとして、GoogleがPWA(Progressive Web App)@<fn>{fn_pwa}と呼ばれるコンセプトを提唱しています。
 //footnote[fn_pwa][残念ですが、この本ではスペースや著者の時間的な理由からPWAについての詳しい説明は省いています。詳しく知りたい場合はGoogleの"はじめてのプログレッシブウェブアプリ" - https://developers.google.com/web/fundamentals/codelabs/your-first-pwapp を読むか、既に先人たちが残している大量の記事の中からめぼしいものを探して読む事を勧めます。]
@@ -51,7 +51,7 @@ SPAを初めて表示する時のロード時間を短縮する手段として�
 
 #@# ここに画面遷移図を置く
 
-この内の一覧画面と詳細画面に関しては頻繁にそれぞれへ遷移する事を考慮して一つのモジュールにまとめることとし、最終的に全画面共通のモジュール(app-shell)とレポジトリ画面、アクティビティ画面、ログイン画面の4つに分割します。
+この内の一覧画面と詳細画面は頻繁にそれぞれへ遷移する画面なので、一つのモジュールにまとめました。最終的に全画面共通のモジュール(app-shell)とレポジトリ画面、アクティビティ画面、ログイン画面の4つに分割します。
 
 最終的に、project.cljでのモジュール定義は以下の形になります。
 
@@ -87,12 +87,81 @@ SPAを初めて表示する時のロード時間を短縮する手段として�
 
 @<code>{:repository}, @<code>{:auth}, @<code>{:activity}, @<code>{:cljs-base}, @<code>{:client}の5つのモジュールに分割しており、それぞれのモジュールの名前空間や依存関係、出力先ファイル名を定義しています。
 
-本来はこの5つのうちの@<code>{:client}がapp-shellですが、コメントに書かれている通り動的なモジュールロードに必要な@<code>{:cljs-base}が必ず分割されるのでこちらもapp-shellの一部になります。
+本来はこの5つのうちの@<code>{:client}がapp-shellにあたるモジュールですが、コメントにも書かれている通り動的なモジュールロードに必要な@<code>{:cljs-base}が必ず分割されるのでこちらもapp-shellの一部になります。
 
 これでCode Splittingに必要な設定は全てです。
-続いて分割したモジュールを動的にロードするLazyLoadについて解説していきます。
+続いて分割したコードを動的にロードするLazyLoadについて解説していきます。
 
 == LazyLoad
+
+ClojureでLazyLoadを実現するためには、ClojureScript（ClojureからJSへのトランスパイラ）にのみ存在する標準APIの@<code>{cljs.loader/load}と@<code>{cljs.loader/set-loaded!}を利用します。
+
+まずは@<code>{cljs.loader/set-loaded!}をLazyLoadしたいコードの末尾で呼び出す必要があるため、以下のように書いています。
+
+//emlist[sample-github-spa/src/cljs/sample_github_spa/repository/container.cljs][clojure]{
+(ns sample-github-spa.repository.container
+  (:require [reagent.core :as reagent]
+            [sample-github-spa.component]
+            [sample-github-spa.repository.component :as component]
+            [sample-github-spa.repository.subs :as subs]
+            [sample-github-spa.repository.events :as events]
+            [sample-github-spa.util :as util]
+            [re-frame.core :as re-frame]))
+...
+(util/universal-set-loaded! :repository)
+//}
+
+実際には@<code>{util/universal-set-loaded!}を呼び出していますが、これはあくまでも@<code>{cljs.loader/set-loaded!}と同じ動作をするWrapperです（なぜWrapperを利用しているかについては後のSSRについての章で解説します）。
+
+@<code>{cljs.loader/set-loaded!}を呼び出した事で、@<code>{cljs.loader/load}によるコードのLazyLoadが可能になります。
+以下のコードを見てください。
+
+//emlist[sample-github-spa/src/cljs/sample_github_spa/route.cljs][clojure]{
+(ns sample-github-spa.route
+  (:require
+    [re-frame.core :as re-frame]
+    [sample-github-spa.util :as util]
+    [sample-github-spa.events :as events]
+    [secretary.core :as secretary :refer-macros [defroute]]))
+...
+(def route-table
+  {:login {:title "Login"
+           :container #(resolve 'sample-github-spa.auth.container/box)
+           :module-name :auth}
+   :repository {:title "Repository"
+                :container #(resolve 'sample-github-spa.repository.container/grid-box)
+                :module-name :repository}
+   :about-repository {:title "About Repository"
+                      :container #(resolve 'sample-github-spa.repository.container/detail)
+                      :module-name :repository}
+   :activity {:title "Activity"
+              :container #(resolve 'sample-github-spa.activity.container/timeline)
+              :module-name :activity}
+   :about-activity {:title "About Activity"
+                    :container #(resolve 'sample-github-spa.activity.container/detail)
+                    :module-name :activity}})
+
+(defn- lazy-push
+  [key params]
+  (util/universal-load (-> route-table key :module-name) #(re-frame/dispatch-sync [::events/push key params])))
+
+;; ルーティング定義
+(defroute root-path "/" []
+  (lazy-push :login {}))
+...
+//}
+
+例によって@<code>{util/universal-load} が@<code>{cljs.loader/load}を内部で呼び出すWrapperになってるのですが、@<code>{cljs.loader/load}として読み取ってください。
+
+@<code>{cljs.loader/load}はロードするモジュール名とロード完了後のcallback関数を受け取る関数で、サンプルコードではページ遷移をハンドルする@<code>{(defroute ...)}がこれを呼び出す事で画面に対応したモジュールをLazyLoadしています。
+
+そしてロードが完了した後で、このサンプルではReagent@<fn>{fn_reagent}とre-frame@<fn>{fn_re_frame}を利用して画面の描画を行っているため、@<code>{cljs.loader/load}のcallbackからロードが完了したコンポーネントをReagentに描画させています。
+//footnote[fn_reagent][https://reagent-project.github.io/]
+//footnote[fn_re_frame][https://github.com/Day8/re-frame]
+
+これでCode SplittingとLazyLoadに必要な設定は全てです。
+
+続いて、クライアントサイドでのキャッシュやオフライン対応を実現出来るServiceWorkerについて解説していきます。
 
 = ServiceWorkerを利用してキャッシュやオフライン対応を実現する
 
