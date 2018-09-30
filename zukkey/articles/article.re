@@ -24,28 +24,31 @@
  ** 図形の表示
  ** 3Dモデルの表示
 
- * Argumented Images
+ * Augmented Images
  ** The arcoreimg toolを使って画像マーカーにできるかを知る
  ** 画像をマーカーにして3Dモデルを表示してみよう
 
 == ARCoreとは
 ARCoreとは、Googleが提供しているSDKです。AR機能に必須のモーショントラッキングや環境、
 光の加減など全てサポートしてくれておりSDKを利用することで既存のアプリケーションいAR機能を搭載したり、新しいARアプリケーションを構築することができます。
-公式の概要は下記リンクを参照してください。
 
+公式の概要は下記リンクを参照してください。
 @<href>{公式リンク: https://developers.google.com/ar/develop/, https://developers.google.com/ar/develop/}
 
 == AndroidStudioで開発するための準備
 AndroidStudioで開発を始めるにはいくつか準備が必要です。
+
 すでに準備が整っている場合や公式のドキュメントを読んだことがある方は、スキップしていただいて結構です。
 この説では、公式のドキュメントの意訳が中心になります。
 
 === 開発環境をセットアップする
 まずは、開発環境を整えていきましょう。
+
 AndroidStudioはversion3.1以上のものをインストールしてください。
+
 AndroidStudio > About AndroidStudioから次の画像のようにバージョンの確認ができます。
 
-//image[techbookfest5-1][AndroidStudioのバージョン確認画面]{
+//image[techbookfest5-1][AndroidStudioのバージョン確認画面][scale=0.8]{
     techbookfest5-1
 //}
 
@@ -61,7 +64,7 @@ ARCoreを利用するために下記の3点を設定する必要があります�
 AR機能を利用するために、まずはじめにAndroidManifestの設定を行う必要があります。
 AR機能を必須にする場合と、必須にしない場合によって設定する項目が違います。
 
-* AR機能を必須にする場合
+ * AR機能を必須にする場合
 AR機能必須アプリの場合には、minSdkVersionが24以上になります。AndroidManifestには、次のように追加してください。
 android:valueをrequiredにすることで、必須とすることができます。
 
@@ -78,7 +81,7 @@ android:valueをrequiredにすることで、必須とすることができま�
 </application>
 //}
 
-* AR機能を必須にしない場合
+ * AR機能を必須にしない場合
 AR機能を必須にしないで、機能の１つとして追加したい場合では、minSdkVersionが14以上である必要があります。
 またandroid:valueをrequiredにすることで、オプショナルとすることができます。
 //emlist[][]{
@@ -109,6 +112,7 @@ AR機能を必須にしないで、機能の１つとして追加したい場合
 
 次に、appのbuild.gradleの中にてARCoreのライブラリの最新バージョンを追加してください。
 2018年10月現在の最新バージョンは1.4.0になります。
+
 最新バージョンの確認は次のリンク先のgithubのreleasesから確認できます。
 @<href>{https://github.com/google-ar/arcore-android-sdk/releases, https://github.com/google-ar/arcore-android-sdk/releases}
 
@@ -165,8 +169,8 @@ ARCoreでできることは、次の３つになります。
 Sceneformでは、Androidで標準で用意されているWidgetをARとして表示することができたり、図形の表示や3Dモデルを表示することが可能です。
 また、表示したオブジェクトを拡大、縮小したり、移動したりクリックイベントによって他の動作をさせることもできます。
 
-2. Argumented Images
-Argumented Imagesでは、自分で用意した画像をARを表示するためのマーカーにして用意した3Dモデルを表示することが可能です。
+2. Augmented Images
+Augmented Imagesでは、自分で用意した画像をARを表示するためのマーカーにして用意した3Dモデルを表示することが可能です。
 どんな画像でも表示することができるわけではないですが、The arcoreimg toolを使って使用できる画像かを調べて条件を満たせばその画像をマーカにすることができます。
 
 3. Cloud Anchors
@@ -178,7 +182,7 @@ GCPを経由してアンカーを作って、出現させたオブジェクト�
 
 == Sceneform
 Sceneformを用いることで、3Dモデルを表示したり、Androidの標準のWidget(TextView, ImageView, etc..)などを表示したり、図形の表示することが可能です。
-この章では、それぞれについて導入から説明して行きます。
+この章では、3Dモデルの表示とAndroid標準のWidgetをARとして表示するために導入から説明して行きます。
 
 === 3Dモデルの表示
 
@@ -186,7 +190,7 @@ Sceneformを用いることで、3Dモデルを表示したり、Androidの標�
 AndroidStudioのPreferencesのPlugins > Browse repositoriesにてGoogle Sceneform Toolsと検索してください。
 検索した結果が次のようになると思います。
 
-//image[plugin01][Google Sceneform Tools検索時]{
+//image[plugin01][Google Sceneform Tools検索時][scale=0.5]{
     plugin01
 //}
 
@@ -197,7 +201,7 @@ build.gradleの依存関係を自動的に追加してくれるプラグイン�
 3Dモデルを実際に導入して行くところをやっていきましょう。
 
 3Dモデルを用意するのが難しい場合は、Google公式で次のサイトから3Dモデルを利用することが可能です。
-//image[poly01][Poly - 無料の3Dオブジェクトライブラリ]{
+//image[poly01][Poly - 無料の3Dオブジェクトライブラリ][scale=0.5]{
     poly01
 //}
 
@@ -210,7 +214,7 @@ Polyでは、3Dモデルの作成は難しいがARを表示するのに手軽に
 また、他にも無料で公開され二次創作利用できる3Dモデルキャラクターがあるので、そちらでも可能です。
 私は、今回説明するにあたってImagineVR Inc.さんよりImagin Girlsのアセットをお借りしてきました。
 
-//image[ImagineGirls][ImagineGirls公式サイト]{
+//image[ImagineGirls][ImagineGirls公式サイト][scale=0.5]{
     ImagineGirls
 //}
 
@@ -248,14 +252,14 @@ objファイル、mtlファイル、テクスチャが揃って初めて3Dモデ
 objファイル及びmtlファイルをSample Data Directoryの中に移動させます。MacならFinderから直接移動させて大丈夫です。
 
 sampledata directoryの中身が次のとおりになっていることを確認してください。
-//image[SampleData][ファイル移動後のSampleDataフォルダ]{
+//image[SampleData][ファイル移動後のSampleDataフォルダ][scale=0.5]{
     SampleData
 //}
 objファイル、mtlファイル、テクスチャの画像などが全て入っていることを確認してください。
 
 その次にsampledataを右クリックして、New > Sceneform Assetを選択します。
 選択した後、次の画像のようにImport Wizardが出てきます。
-//image[Sceneform01][選択前のImport Wizard]{
+//image[Sceneform01][選択前のImport Wizard][scale=0.8]{
     Sceneform01
 //}
 
@@ -266,14 +270,14 @@ res > rawを.sfb Output Pathに指定している場合は_がPathに入って�
 今回は、res配下にてrawフォルダを追加してPathを設定していきます。
 ここまで設定をすると、次の画像のようになります。
 
-//image[Sceneform02][選択後のImport Wizard]{
+//image[Sceneform02][選択後のImport Wizard][scale=0.8]{
     Sceneform02
 //}
 
 この状態でFinishを選択すると、次のようにエラーが吐かれることがあります。
 ERROR: Multiple different usages defined for texture: FX
 これは、mtlファイル内でFXというテクスチャが複数定義されているために起こるバグになります。
-//image[mtlFileError][mtlファイルのError画面]{
+//image[mtlFileError][mtlファイルのError画面][scale=0.8]{
     mtlFileError
 //}
 
@@ -282,7 +286,7 @@ map_dとmap_Kdが同じテクスチャを指定しているのが原因なので
 map_d hogehoge/FX.pngとなっているのを、map_d ./FX.pngと修正してください。
 
 導入がうまくいくと、次のような画面に自動的に遷移します。
-//image[importComplete][3Dモデル導入後の画面]{
+//image[importComplete][3Dモデル導入後の画面][scale=0.5]{
     importComplete
 //}
 
@@ -316,7 +320,7 @@ Nodeは、ちょっと理解が難しい部分であり公式のドキュメン�
 次のような公式のサンプル(https://developers.google.com/ar/develop/java/images/sceneform-plane.jpg)で示されている、
 白いドットのスペース(Plane)にAnchorで現実世界の位置と向きを決め、AnchorNodeで構築しているシーンに位置を変換し、レンダリングした3DモデルのオブジェクトをNodeで変換し表示しているのだと考えます。
 
-//image[PlaneRender][公式サンプル画像(Plane)]{
+//image[PlaneRender][公式サンプル画像(Plane)][scale=0.5]{
     PlaneRender
 //}
 
@@ -412,35 +416,140 @@ TransformableNodeは、拡大縮小や移動、回転をするかを設定する
 
 ここまでできたら、実際にビルドしてPlaneをタップして読み込んだ3Dモデルが表示されることを確認してみましょう。
 筆者が、実行した結果は次の通りです。
-//image[Result][実行結果]{
+//image[Result][実行結果][scale=0.3]{
     Result
 //}
 
-これで、任意の3Dモデルの読み込みと表示までができたと思います。
+これで、任意の3Dモデルの読み込みと表示までができました。
+次は、Android標準で用意されている、各種WidgetをARとして表示する方法について解説します。
 
 === Android標準のWidgetの表示
-Androidで標準で用意されている、Widgetの表示をARとして表示させることができます。
-また、Widgetとしての機能を使用することができます。例えば、ARとして表示したButtonをタップした際にクリック後の処理を行うことができ標準のWidgetと同様の機能を使用することが可能です。
+ARCoreを利用することで、Androidで標準で用意されているWidgetをARとして表示させることができます。
+また、Widgetとしての機能を使用することができます。例えば、ARとして表示したButtonをタップした際に、クリック後の処理を行うことができ標準のWidgetと同様の機能を使用することが可能です。
 
 まずはじめに、Widgetの表示を行うところから始めていきましょう。
-AndroidのWidgetを表示する前に3Dモデルや図形の表示を行う際にも共通してGoogleのArFragmentを用いる必要があります。
-layoutのxmlファイルをはじめに用意します。
+Widgetの表示を行うには、２種類のレイアウトが必要です。
+前説の、3Dモデルを表示する際に用意したactivity_model.xmlのようにARFragmentをもつxmlファイルと、表示するWidget単体のxmlファイルが必要です。
+ArFragmentをもつxmlに関しては、前節と同じように用意してください。
+今回は、新たに表示したいWidget用のxmlファイルを作成します。私は、ImageViewを表示したいので、ImageView用のファイルをitem_image.xmlとして用意しました。
+//emlist[][]{
+  <?xml version="1.0" encoding="utf-8"?>
+  <ImageView android:id="@+id/image"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:src="@drawable/eure"
+    xmlns:android="http://schemas.android.com/apk/res/android" />
+//}
+
+ImageView単体を表示したいので、上のように定義していますが、複数のViewをまとめて表示したい場合はRelativeLayoutなどで定義することは可能です。
+
+次に、新しく前節と同様にActivityを作成してWidgetをレンダリング可能なオブジェクトにします。私の場合は、ViewActivity.javaを作成しました。
+次のようにコードを追加してください。activity_viewはArFragmentをもつxmlファイルになります。
+//emlist[][]{
+  private ViewRenderable imageViewRenderable;
+
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_view);
+
+    ...
+    ViewRenderable.builder()
+        .setView(this, R.layout.item_image)
+        .build()
+        .thenAccept(renderable -> imageViewRenderable = renderable);
+    ...
+  }
+//}
+
+ViewRenderableクラスは、2DのAndroidのViewを3D空間にレンダリングしてくれるクラスです。デフォルトでは、250dpごとにビューのサイズが1mになります。
+3Dモデルの時と同様にして、PlaneにAnchorNodeとViewのNodeを作成してアタッチします。
+具体的には次のように実装します。
+
+//emlist[][]{
+  private ArFragment arFragment;
+
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_view);
+
+    ...
+    arFragment.setOnTapArPlaneListener(
+        (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
+          if (imageViewRenderable == null) {
+            return;
+          }
+
+          Anchor anchor = hitResult.createAnchor();
+          AnchorNode anchorNode = new AnchorNode(anchor);
+          anchorNode.setParent(arFragment.getArSceneView().getScene());
+          TransformableNode image = new TransformableNode(arFragment.getTransformationSystem());
+          image.setParent(anchorNode);
+          image.setRenderable(imageViewRenderable);
+          image.select();
+        });
+    ...
+  }
+//}
+setParentで親のNodeとして、AnchorNodeをPlaneにつけ、setRendarableで作成したレンダリング可能なオブジェクトをセットします。
+これで実行した結果が、次のようになります。
+//image[Result2][実行結果2][scale=0.3]{
+    Result2
+//}
+
+また、これだけではなく、Widgetをクリックした際に何かの処理を行うということもできます。
+今回は、Buttonを次のようにitem_text.xmlを用意し、クリックした際にwebviewに飛ばしトーストを表示するまでをやっていきます。
+//emlist[][]{
+  <?xml version="1.0" encoding="utf-8"?>
+  <Button xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:textSize="18sp"
+    android:textColor="@color/colorAccent"
+    android:background="@drawable/ripple_text"
+    android:text="BOOTHにて電子版販売中！\nタップして詳細を見れるよ！"/>
+//}
+
+先ほどと同じようにViewRendarableクラスで、レンダリング可能なオブジェクトを作成して、Nodeをそれぞれ用意しセットします。
+違う点だけをコードで示すと次の通りです。
+//emlist[][]{
+  private ArFragment arFragment;
+  private ViewRenderable textViewRenderable;
+
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
+    ...
+    arFragment.setOnTapArPlaneListener(
+        (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
+          ...
+          Button btn = (Button) textViewRenderable.getView();
+          btn.setOnClickListener(view -> {
+            Toast.makeText(this, "ボタンをタップしました！詳細へ遷移します", Toast.LENGTH_SHORT).show();
+              startActivity(WebActivity.createIntent(this));
+              finish();
+            });
+          ...
+        });
+    ...
+  }
+//}
+Buttonをレンダリング可能なオブジェクトにしたtextViewRenderableを、getViewでButtonを取得できます。
+通常のButtonのクリック処理と同じようにして、setOnClickListenerの中でクリックした時の処理を書くことでARとして表示したButtonにクリック後の処理を持たせることができました。
+サンプルを動かすことで挙動が確認できるので、下記リンクからソースコードをダウンロードして試してみてください。
+@<href>{https://github.com/yutaro6547/ARCoreSampleForTechBookFest, https://github.com/yutaro6547/ARCoreSampleForTechBookFest}
 
 
-=== 図形の表示
-
-
-
-== Argumented Images
-Argumented Imagesでは、特定の画像をマーカーにして3Dモデルを表示することができます。
+== Augmented Images
+Augmented Imagesでは、特定の画像をマーカーにして3Dモデルを表示することができます。
 全ての画像で利用できるわけではないですが、arcoreimgと言われる公式のツールで特徴点のスコアを基準以上で満たせば利用できます。
 
 === The arcoreimg toolを使って画像マーカーにできるかを知る
-Argumented Imagesでは画像をマーカーにすることができるのですが、全ての画像をマーカーにできるわけではありません。
+Augmented Imagesでは画像をマーカーにすることができるのですが、全ての画像をマーカーにできるわけではありません。
 画像をマーカーにできるかを知るために、The arcoreimg toolというツールがGoogle公式で用意されているのでこちらを利用しましょう。
 
 @<href>{https://developers.google.com/ar/develop/java/augmented-images/arcoreimg, The arcoreimg tool}とは、AndroidおよびAndroid NDK開発者向けのコマンドラインツールです。
-画像マーカーとしての画質をチェックしたり、Argumented Imagesで利用するための画像データベースの作成を行うことができます。
+画像マーカーとしての画質をチェックしたり、Augmented Imagesで利用するための画像データベースの作成を行うことができます。
 
 ==== The arcoreimg toolの導入
 The arcoreimg toolを導入するために次のリンクのLatest releaseのarcore-android-sdkの最新版のzipをダウンロードしてください。
@@ -450,4 +559,173 @@ The arcoreimg toolを導入するために次のリンクのLatest releaseのarc
 ダウンロードした圧縮フォルダを解凍後に、tools > arcoreimgと進むとlinux、macos、windowsのOSごとに実行ファイルが用意されているのでそちらをダブルクリックしてください。
 クリック後に、次の画像のようにプロセスが完了しました、という表記が出れば導入完了です。
 
-// TODO: arcoreimg01画像を出す
+//image[arcoreimg01][プロセス完了後の画面][scale=0.5]{
+    arcoreimg01
+//}
+
+==== The arcoreimg toolを使って画像をマーカーにできるか確認する
+ターミナルを開き、ダウンロードしたarcore-android-sdkの中のtools > arcoreimgに移動後に、各プラットフォームのところまでディレクトリ移動してください。
+macの場合は、macosまでディレクトリに移動した後に、./arcoreimg eval-img --input_image_path=hogehoge/fugafuga.jpgを入力することで、fugafuga.jpgの特徴点のスコアが観れます。
+このスコアが75以上でないと、画像をマーカーにすることができません。
+試しに、前回の技術書典4で販売したエウレ・テクノロギアを画像マーカーにできるか調べてみたところ次のような結果となりました。
+
+//image[arcoreimg02][エウレ・テクノロギア評価後画像]{
+    arcoreimg02
+//}
+諸事情により一部隠させていただいておりますが、無事エウレ・テクノロギアはスコアが95あるので画像マーカーとして利用できることがわかりました。
+
+このeval-imgを行う際に気をつけて欲しい点として、--input_image_pathの後の=の間にスペースを入れたりしないようにしてください。また、画像までのパスを入力するようにしてください。
+
+スコアが75以上であることを確認できたら、実際に画像をマーカーにして3Dモデルを表示していきましょう。
+
+=== 画像をマーカーにして3Dモデルを表示してみよう
+画像をマーカーにするために、まずはじめに画像のデータベースを作成する必要があります。
+先ほど導入した、arcoreimg toolを利用してAndroidStudioに画像のデータベースを作成しましょう。
+
+先ほどと同じように、ターミナルを開きダウンロードしたarcore-android-sdkの中のtools > arcoreimgに移動後に、各プラットフォームのところまでディレクトリ移動してください。
+自分のOSのところまで移動した後に、./arcoreimg build-db --input_images_directory=/path/to/images --output_db_path=/path/to/sample_database.imgdbを入力します。
+input_images_directoryは先ほど確認した画像のディレクトリを入力してください。hogehoge/fugafuga.jpgであればhugehugeまでを入力すれば大丈夫です。
+output_db_pathはAndroidStudioのassetsのPathを指定するのが良いでしょう。~/Project名/app/src/main/assets/sample_database.imgdbと入れれば大丈夫です。
+.imgdbの前はどんな名前でも大丈夫なので、自分の好きな名前を入れてください。
+
+ターミナルにて上記のPathを指定した後にエンターキーを押すと、assetsの配下にsample_database.imgdbとsample_database.imgdb-imglist.txtが作成されて入れば、
+データベースの作成が完了です。
+
+気をつけて欲しいこととして、=の前後にスペースを入れないことと、公式のドキュメントに書かれていますがoutput_db_pathの前に\を入れないようにしてください。筆者はこれでだいぶハマりました。
+
+画像のデータベースを作成できたら、例によってxmlファイルを用意しましょう。
+3Dモデルの時と同じようにArFragmentをもつxmlファイルを用意してください。
+ArFragmentをもつxmlファイルを用意できたら、新しくActivityを作成しましょう。
+私は、AugmentedImage用にAugmentedImageActivityを作成しました。
+全体については、下記リンクより確認することができます。
+@<href>{https://github.com/yutaro6547/ARCoreSampleForTechBookFest, https://github.com/yutaro6547/ARCoreSampleForTechBookFest}
+
+まずはじめに、ArFragmentはデフォルトだとPlaneの検出が始まるので、Planeの検出をオフにする必要があります。
+Planeの検出をオフにするためには、次のコードを作成したActivityに追加してください。
+//emlist[][]{
+  private ArFragment arFragment;
+
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
+    ...
+    if (arFragment != null) {
+      arFragment.getPlaneDiscoveryController().hide();
+      arFragment.getPlaneDiscoveryController().setInstructionView(null);
+    }
+    ...
+  }
+//}
+getPlaneDiscoveryControllerでは、Planeをスキャンする役割を持っており、不要な場合はhideで無効化できるので、hideを呼ぶようにしましょう。
+setInstructionViewでは、シーンに表示するという役割を持っているため、非表示にするためにsetInstructionView(null)で無効化しましょう。
+
+次に、画像データベースに登録した画像のトラッキングに関する処理を追加します。
+画像のトラッキングに関する処理を追加するために、次のコードを作成したActivityに追加してください。
+//emlist[][]{
+  private ArFragment arFragment;
+
+  @Override
+  protected void onCreate(@Nullable Bundle savedInstanceState) {
+    ...
+    arFragment.getArSceneView().getScene().addOnUpdateListener(frameTime -> {
+      Frame frame = arFragment.getArSceneView().getArFrame();
+      Collection<AugmentedImage> updatedAugmentedImages = frame.getUpdatedTrackables(AugmentedImage.class);
+
+      for (AugmentedImage img : updatedAugmentedImages) {
+        if (img.getTrackingState() == TrackingState.TRACKING) {
+          if (img.getName().contains("eure") && !isAttachedModel) {
+            setUp3DModel(img.createAnchor(img.getCenterPose()));
+          }
+        }
+      }
+    });
+    ...
+  }
+
+  private void setUp3DModel(Anchor anchor) {
+  ViewRenderable.builder()
+      .setView(this, R.layout.item_text)
+      .build()
+      .thenAccept(renderable -> textViewRenderable = renderable)
+      .exceptionally(
+          throwable -> {
+            Toast toast =
+                Toast.makeText(this, "Unable to load andy renderable", Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.CENTER, 0, 0);
+            toast.show();
+            return null;
+          });
+
+  if (textViewRenderable == null) {
+    return;
+  }
+
+  AnchorNode anchorNode = new AnchorNode(anchor);
+  anchorNode.setParent(arFragment.getArSceneView().getScene());
+
+  TransformableNode text = new TransformableNode(arFragment.getTransformationSystem());
+  text.setParent(anchorNode);
+  text.setRenderable(textViewRenderable);
+  text.getRotationController();
+  text.getScaleController();
+  text.select();
+  text.setLocalRotation(Quaternion.lookRotation(Vector3.down() ,Vector3.up()));
+  Button btn = (Button) textViewRenderable.getView();
+  btn.setOnClickListener(view -> {
+    Toast.makeText(this, "ボタンをタップしました！詳細へ遷移します", Toast.LENGTH_SHORT).show();
+    startActivity(WebActivity.createIntent(this));
+    finish();
+  });
+  isAttachedModel = true;
+}
+//}
+公式のドキュメントにも書かれているが、ARのセッションが行われている中、カメラの画像から、事前に登録した画像のデータベース内の特徴点と照らし合わせて、
+事前に登録済みのエウレ・テクノロギアの表紙画像と一致していたら、Widgetを3Dモデル化し表示する処理を書いている。
+setUp3DModelの中身は、これまでの章で紹介してきた内容と同じであるが、3Dモデルの表示を画像に対して90度回転させるためにsetLocalRotation(Quaternion.lookRotation(Vector3.down() ,Vector3.up()))にて
+位置の調節を行なっている。
+
+事前に登録した画像データベースを、ARのシステム状態を管理しライフサイクルを担うSessionクラスに結びつける必要がある。
+onResumeの中で、下記のコードを追加する必要がある。
+//emlist[][]{
+  @Override
+  protected void onResume() {
+    super.onResume();
+    if (session == null) {
+      try {
+        session = new Session(this);
+      } catch (UnavailableArcoreNotInstalledException | UnavailableApkTooOldException | UnavailableSdkTooOldException e) {
+        e.printStackTrace();
+      }
+      sessionConfigured = true;
+    }
+
+    if (sessionConfigured) {
+      configureSession();
+      sessionConfigured = false;
+    }
+  }
+
+  ...
+  private void configureSession() {
+    Config config = new Config(session);
+    InputStream inputStream;
+    try {
+      inputStream = getAssets().open("sample_database.imgdb");
+      AugmentedImageDatabase imageDatabase = AugmentedImageDatabase.deserialize(session, inputStream);
+      config.setAugmentedImageDatabase(imageDatabase);
+      config.setUpdateMode(Config.UpdateMode.LATEST_CAMERA_IMAGE);
+      session.configure(config);
+    } catch (IOException e) {
+      Toast.makeText(this, "Don't configure Session", Toast.LENGTH_SHORT).show();
+      e.printStackTrace();
+    }
+    arSceneView.setupSession(session);
+  }
+  ...
+//}
+Cofigクラスは、Sesionの設定を保持するためのクラスである。
+公式ドキュメントに書かれたある通り、既存の画像データベースが存在する場合にInputStreamクラスを用いて作成済みの画像データベースを利用することができる。
+画像データベースをSessionに設定し、ArFragmentに対してセットする。
+
+ただし、この際にconfig.setUpUpdateModeをConfig.UpdateMode.LATEST_CAMERA_IMAGEにしないと下記エラーを吐く
+java.lang.RuntimeException: Invalid ARCore UpdateMode BLOCKING, Sceneform requires that the ARCore session is configured to the UpdateMode LATEST_CAMERA_IMAGE.
+SessionではUpdateModeをConfig.UpdateMode.LATEST_CAMERA_IMAGEに設定する必要があるようなので、忘れずに追加して欲しい。
