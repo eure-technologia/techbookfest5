@@ -88,8 +88,8 @@ Widget開発をする際に登場するクラスは次のとおりです。
  * RemoteViews
 
 ==== AppWidgetProvider
-BroadcastReceiverを継承しているWidget向けに便利なメソッドだけにしたクラスです。Widget開発といったらこのクラスをメインでいじることになります。SystemやUserの操作によって発生するイベントを取得するのが仕事です。イベントを取得した後はこのあと紹介するAppWidgetMangerを通してViewの更新を行います。
-AppWidgetProviderを使ってできることはBrodcastReceiverを使ってもできます。しかしAppWidgetProviderを使ったほうがより直感的に実装することが可能となるので、あえてつかわないという手は無いでしょう。
+BroadcastReceiverを継承しWidget向けに必要なメソッドだけにしたクラスです。Widget開発といったらこのクラスをメインでいじることになります。SystemやUserの操作によって発生するイベントを取得するのが仕事です。イベントを取得した後はこのあと紹介するAppWidgetMangerを通してViewの更新を行います。
+AppWidgetProviderを使うことでWidgetのライフサイクルに合わせた更新処理だけに実装者は気を使えばいいようになっています。
 
 ==== AppWidgetManager
 WidgetのViewを更新します。またインストールされているAppWidgetProviderInfoの値を取得したり、Widget関連の情報の取得も行います。
@@ -132,3 +132,75 @@ public void setTextViewText(int viewId, CharSequence text) {
 他にもView周りに対してなにか変更をくわえる場合にはRemoteViewのお世話になります。一度は目を通しておいたほうがいいクラスです。
 
 == Widgetのlifecycle
+著者がWidgetのlifecycleをはじめて見た時にActivityやFragmentとの違いに戸惑いを感じたのでここでご紹介しておきます。
+AppWidgetProviderクラスの実装をのぞいてみると@<list>{AppWidgetProvider}のようになっています。（ここでは便宜上引数や内部の処理を省略）
+AOSPのコードを見ていただくと分かるのですが、onReceive()以外のメソッドについてはすべてonReceive()内で、引数で受け取ったIntentのactionをもとに分岐した先で呼び出しています。
+//list[AppWidgetProvider][AppWidgetProvider][java]{
+public class AppWidgetProvider extends BroadcastReceiver {
+    public AppWidgetProvider() { }
+
+    public void onReceive() { }
+
+    public void onUpdate() { }
+
+    public void onAppWidgetOptionsChanged() { }
+
+    public void onDeleted() { }
+
+    public void onEnabled() { }
+
+    public void onDisabled() { }
+
+    public void onRestored() { }
+}
+//}
+
+たとえば、onUpdate()は@<list>{onUpdate}のような処理がonRecieve()内で行われた結果呼び出されています。
+//list[onUpdate][onUpdate][java]{
+if (AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(action)) {
+  Bundle extras = intent.getExtras();
+    if (extras != null) {
+      int[] appWidgetIds =
+          extras.getIntArray(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+      if (appWidgetIds != null && appWidgetIds.length > 0) {
+        this.onUpdate(
+            context, AppWidgetManager.getInstance(context),
+            appWidgetIds);
+      }
+  }
+}
+//}
+
+==== onReceive()
+BroadcastReceiverのabstructメソッドであるonReciveの実装です。BroadCastに反応して呼び出されます。
+
+==== onUpdate()
+onReceiveが受け取ったIntentのactionが@<strong>{AppWidgetManager.ACTION_APPWIDGET_UPDATE}のときに呼び出されます。updatePeriodMillisの更新が走った時、Systemの起動時に発行されるactionです。また明示的にonUpdateを走らせたい場合に使うことでWidgetの更新時間を短くしたり、任意のタイミングで更新させたりすることができます。
+
+==== onAppWidgetOptionsChanged()
+onReceiveが受け取ったIntentのactionが@<strong>{AppWidgetManager.ACTION_APPWIDGET_OPTIONS_CHANGED}のときに呼び出されます。Widgetのサイズが変更された時に発行されるactionです。サイズによってWidget内の特定の要素の表示非表示を変更したいような場合に使うことができます。
+
+==== onDeleted()
+onReceiveが受け取ったIntentのactionが@<strong>{AppWidgetManager.ACTION_APPWIDGET_DELETED}のときに呼び出されます。1つかそれ以上のWidgetが削除された時に発行されるactionです。Widgetの更新処理を自前で実装し、AlermManagerなどを使っている場合はここで解除することなどができます。
+
+==== onEnabled()
+onReceiveが受け取ったIntentのactionが@<strong>{AppWidgetManager.ACTION_APPWIDGET_ENABLED}のときに呼び出されます。はじめてWidgetが追加された時に発行されるactionです。
+
+==== onDisabled()
+onReceiveが受け取ったIntentのactionが@<strong>{AppWidgetManager.ACTION_APPWIDGET_DISABLED}のときに呼び出されます。追加されているWidgetの最後のWidgetが削除された時に発行されるactionです。
+
+==== onRestored()
+onReceiveが受け取ったIntentのactionが@<strong>{AppWidgetManager.ACTION_APPWIDGET_RESTORED}のときに呼び出されます。API level 21から追加されました。@<list>{onRestored}のようにonRestoredが呼ばれた直後にonUpdateが呼ばれます。アプリのアップデートなどでWidgetのレイアウトを変更したあとなどに使用できます。
+//list[onRestored][onRestored][java]{
+Bundle extras = intent.getExtras();
+  if (extras != null) {
+    int[] oldIds = extras.getIntArray(
+        AppWidgetManager.EXTRA_APPWIDGET_OLD_IDS);
+    int[] newIds = extras.getIntArray(
+        AppWidgetManager.EXTRA_APPWIDGET_IDS);
+    if (oldIds != null && oldIds.length > 0) {
+      this.onRestored(context, oldIds, newIds);
+      this.onUpdate(context, AppWidgetManager.getInstance(context), newIds);
+    }
+  }
+//}
