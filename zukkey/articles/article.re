@@ -31,7 +31,7 @@ OPenGLなどの専門的な知識が無くても、比較的手軽に試すこ�
 
 公式の概要は下記リンクを参照してください。
 
-@<href>{公式リンク:https://developers.google.com/ar/develop/, https://developers.google.com/ar/develop/}
+@<href>{https://developers.google.com/ar/develop/, 公式リンク:https://developers.google.com/ar/develop/}
 
 == AndroidStudioで開発するための準備
 AndroidStudioで開発を始めるにはいくつか準備が必要です。
@@ -149,8 +149,11 @@ manifestタグの中に記載されていれば大丈夫です。
     super.onResume();
 
     ...
-    if (ContextCompat.checkSelfPermission(this, CAMERA_PERMISSION) != PackageManager.PERMISSION_GRANTED) {
-      ActivityCompat.requestPermissions(this, new String[] {CAMERA_PERMISSION}, CAMERA_PERMISSION_CODE);
+    if (ContextCompat.checkSelfPermission(this, CAMERA_PERMISSION)
+                                     != PackageManager.PERMISSION_GRANTED) {
+      ActivityCompat.requestPermissions(this,
+                                        new String[] {CAMERA_PERMISSION},
+                                        CAMERA_PERMISSION_CODE);
     }
 
     …
@@ -787,7 +790,7 @@ SessionではUpdateModeをConfig.UpdateMode.LATEST_CAMERA_IMAGEに設定する�
 
 ここまでできたら、画像をマーカーにして3Dモデルを表示することが可能です。
 全体の挙動について確認したい場合、Augumented Imagesのサンプルの全体のソースコードは下記リンクから参照できるので、こちらを参照してビルドして試してみてください。
-@<href>{AugmentedImageActivity.java: https://github.com/yutaro6547/ARCoreSampleForTechBookFest/, https://github.com/yutaro6547/ARCoreSampleForTechBookFest/blob/master/app/src/main/java/zukkey/whiskey/com/arcoresamplefortechbookfest/AugmentedImageActivity.java}
+@<href>{https://github.com/yutaro6547/ARCoreSampleForTechBookFest/blob/master/app/src/main/java/zukkey/whiskey/com/arcoresamplefortechbookfest/AugmentedImageActivity.java, AugmentedImageActivity.java: https://github.com/yutaro6547/ARCoreSampleForTechBookFest/}
 
 サンプルは、画像マーカーであるエウレ・テクノロギアの表紙を認識すると、ButtonのARが表示されタップするとWebViewでBoothの販売ページに遷移するようになっています。
 Boothにて、画像のマーカーであるエウレ・テクノロギアが掲載されているので下記リンクから参照してテストを行うことができます。
