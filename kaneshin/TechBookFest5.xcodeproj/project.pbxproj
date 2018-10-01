@@ -1,0 +1,72 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXFileReference section */
+		7921B3A52162730B009C8B8C /* articles */ = {isa = PBXFileReference; lastKnownFileType = folder; path = articles; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		7921B39E216272E0009C8B8C = {
+			isa = PBXGroup;
+			children = (
+				7921B3A52162730B009C8B8C /* articles */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXProject section */
+		7921B39F216272E0009C8B8C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0940;
+			};
+			buildConfigurationList = 7921B3A2216272E0009C8B8C /* Build configuration list for PBXProject "TechBookFest5" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 7921B39E216272E0009C8B8C;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		7921B3A3216272E0009C8B8C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		7921B3A4216272E0009C8B8C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		7921B3A2216272E0009C8B8C /* Build configuration list for PBXProject "TechBookFest5" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				7921B3A3216272E0009C8B8C /* Debug */,
+				7921B3A4216272E0009C8B8C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 7921B39F216272E0009C8B8C /* Project object */;
+}

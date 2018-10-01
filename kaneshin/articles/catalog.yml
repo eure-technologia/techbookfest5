@@ -5,8 +5,8 @@ CHAPS:
   - introduction.re
   - about-go.re
   // - package.re
-  // - test-bench.re
-  // - cli.re
+  - test-bench.re
+  - cli.re
   // - article.re
 
 APPENDIX:
