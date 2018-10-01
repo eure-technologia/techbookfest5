@@ -113,12 +113,6 @@ Clojure で LazyLoad を実現するためには、 ClojureScript（ Clojure か
 以下のコードを見てください。
 
 //emlist[sample-github-spa/src/cljs/sample_github_spa/route.cljs][clojure]{
-(ns sample-github-spa.route
-  (:require
-    [re-frame.core :as re-frame]
-    [sample-github-spa.util :as util]
-    [sample-github-spa.events :as events]
-    [secretary.core :as secretary :refer-macros [defroute]]))
 ...
 (def route-table
   {:login {:title "Login"
@@ -365,6 +359,7 @@ staleWhileRevalidate	Cache とネットワークの両方から並列に要求�
 SSR を行う場合、レンダリングまでの処理を Isomorphic な処理（サーバーサイドでもクライアントサイドでも同様に振る舞う処理）にする必要があります。
 この制約のため、サンプルアプリで画面が描画されるまでのフローは以下のようになっています。
 
+
 1. URL を元にルーティングする
 
 2. 定義しておいたルーティングハンドラが URL に対応したコンポーネントの参照キーを re-frame に dispatchする
@@ -373,10 +368,11 @@ SSR を行う場合、レンダリングまでの処理を Isomorphic な処理�
 
 4. 画面に描画する
 
+
 このフローの途中までをサーバーサイドが担い、途中でクライアントサイドへバトンタッチする形で SSR を実現しています。
 続いてはこの処理を一つ一つ掘り下げていきましょう。
 
-== 1. ルーティング
+== ルーティング
 
 SPA をユーザーが表示する場合、他のページからの遷移の場合と直接ページを開く場合の2パターンが存在します。
 直接ページを開く場合、サーバーへ表示すべきページをリクエストする必要がありますが、ページ遷移の場合はその限りでなくクライアントサイドのみでページ遷移を実現するものと思います。
@@ -389,14 +385,6 @@ SPA をユーザーが表示する場合、他のページからの遷移の場�
 クライアントサイドでのみ pushy からブラウザの履歴を Secretary に渡しており、サーバーサイドではリクエストのパスをそのまま Secretary に渡す形でルーティングしています。
 
 //emlist[sample-github-spa/src/cljs-client/sample_github_spa/client.cljs][clojure]{
-(ns sample-github-spa.client
-  (:require
-   ...
-   [pushy.core :as pushy]
-   ...
-   [sample-github-spa.route :as route]
-   ...
-   [secretary.core :as secretary :refer-macros [defroute]]))
 ...
 (def history
   (pushy/pushy secretary/dispatch!
@@ -416,12 +404,7 @@ SPA をユーザーが表示する場合、他のページからの遷移の場�
 //}
 
 //emlist[sample-github-spa/src/cljs-server/sample_github_spa/server.cljs][clojure]{
-(ns sample-github-spa.server
-  (:require
-    ...
-    [secretary.core :as secretary]
-    ...))
-
+...
 (def express (js/require "express"))
 (def ^:export app (express))
 ...
@@ -451,7 +434,7 @@ SPA をユーザーが表示する場合、他のページからの遷移の場�
 
 これにより、サーバーサイドとクライアントサイドどちらでもルーティングが実現しています。
 
-== 2. ルーティングハンドラとre-frame
+== ルーティングハンドラとre-frame
 
 2章の Code Splitting & LazyLoad で解説した通り、ルーティング後には画面に必要な分割されたモジュールをLazyLoadしてから画面を表示させます。
 そのためにルーティングハンドラは直接コンポーネントを描画する事はせず、コンポーネントを参照するキーを保存しておいてモジュールの読み込みが完了するのを待ちます。
@@ -512,7 +495,7 @@ SPA をユーザーが表示する場合、他のページからの遷移の場�
 
 これにより、ここから先の手順では Code Splitting については意識せずコンポーネントを描画出来るようになっています。
 
-== 3. app コンポーネントによるコンポーネントの描画
+== app コンポーネントによるコンポーネントの描画
 
 app コンポーネントはサンプルの中アプリのサーバーサイド及びクライアントサイド共通の最上位に配置されているコンポーネントで、ルーティングによって定められたコンポーネントをヘッダーやフッターと一緒に描画します。
 
@@ -531,17 +514,17 @@ app コンポーネントはサンプルの中アプリのサーバーサイド�
 ...
 //}
 
-このコンポーネントは re-frame の app-db にのみ依存しているため、サーバーサイドもクライアントサイドも関係なしに 同じ event が dispatch さえされていれば必ず描画されてきます。
+このコンポーネントは re-frame の app-db にのみ依存しているため、サーバーサイドもクライアントサイドも関係なしに 同じ event が dispatch さえされていれば必ず同じ内容が描画されてきます。
 
 最後に、画面で描画されるまでを解説していきます。
 
-== 4. 画面に描画する
+== 画面への描画
 
 SSR を利用している場合でも、クライアントサイドで画面を遷移をして移動先の画面を描画する場合の処理は通常の SPA と全く同様です。
 
 問題は直接ページを開く場合で、この場合は一度サーバーサイドで描画した html をクライアントへ渡したあと、 hydration と言う処理を行ってクライアントサイドのコンポーネントの管理下とする必要があります。
 
-まず、先までの 1->2->3 の容量でユーザーのリクエストから app コンポーネントがサーバーサイドで形作られます。
+まず、先までの ルーティング -> app コンポーネントの描画 の容量でユーザーのリクエストから app コンポーネントがサーバーサイドで形作られます。
 
 この app コンポーネントを html として描画した後、描画した時の app-db の状態を一度 EDN@<fn>{fn_edn} 形式にシリアライズして html と一緒にクライアントサイドへ返します。
 //footnote[fn_edn][https://github.com/edn-format/edn]
