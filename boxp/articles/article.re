@@ -107,7 +107,7 @@ Clojure で LazyLoad を実現するためには、 ClojureScript（ Clojure か
 (util/universal-set-loaded! :repository)
 //}
 
-実際には@<code>{util/universal-set-loaded!}ですが、これはあくまでも@<code>{cljs.loader/set-loaded!}と同じ動作をするWrapperでファイルの末尾で@<code>{cljs.loader/set-loaded!}を実行する事となんら変わりありません（なぜ Wrapper を利用しているかについては後の SSR についての章で解説します）。
+コードの中で登場するものは実際には@<code>{util/universal-set-loaded!}ですが、これはあくまでも@<code>{cljs.loader/set-loaded!}と同じ動作をするWrapperでファイルの末尾で@<code>{cljs.loader/set-loaded!}を実行する事となんら変わりありません（なぜ Wrapper を利用しているかについては後の SSR についての章で解説します）。
 
 @<code>{cljs.loader/set-loaded!}を呼び出した事で、@<code>{cljs.loader/load}によるコードの LazyLoad が可能になります。
 以下のコードを見てください。
@@ -344,6 +344,8 @@ staleWhileRevalidate	Cache とネットワークの両方から並列に要求�
 
 最後に生成したソースコードを Service Worker として登録する必要がありますが、そこに関しては次の SSR についての章で解説します。
 
-= SSRを実現する
+= SSR(Server Side Rendering)を実現する
+
+最後に、SPAを初めて表示する際のパフォーマンスを更に向上させるために
 
 = 終わりに
