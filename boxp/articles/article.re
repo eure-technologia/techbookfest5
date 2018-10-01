@@ -112,23 +112,23 @@ Clojure で LazyLoad を実現するためには、 ClojureScript（ Clojure か
 (def route-table
   {:login {:title "Login"
            :container #(resolve
-                        'sample-github-spa.auth.container/box)
+                      'sample-github-spa.auth.container/box)
            :module-name :auth}
    :repository {:title "Repository"
                 :container #(resolve
-                             'sample-github-spa.repository.container/grid-box)
+                           'sample-github-spa.repository.container/grid-box)
                 :module-name :repository}
    :about-repository {:title "About Repository"
                       :container #(resolve
-                                   'sample-github-spa.repository.container/detail)
+                                 'sample-github-spa.repository.container/detail)
                       :module-name :repository}
    :activity {:title "Activity"
               :container #(resolve
-                           'sample-github-spa.activity.container/timeline)
+                         'sample-github-spa.activity.container/timeline)
               :module-name :activity}
    :about-activity {:title "About Activity"
                     :container #(resolve
-                                 'sample-github-spa.activity.container/detail)
+                               'sample-github-spa.activity.container/detail)
                     :module-name :activity}})
 
 (defn- lazy-push
@@ -619,7 +619,8 @@ app-db を復元した後で、いよいよ既に画面に描画されている�
 
 (defn ^:export init []
   (let [preload (preload-state)]
-    (util/universal-load (-> preload :router :key route/route-table :module-name)
+    (util/universal-load
+      (-> preload :router :key route/route-table :module-name)
       (fn []
         (re-frame/dispatch-sync [::events/initialize history preload])
 	...
