@@ -16,7 +16,7 @@
 
 最後に、本書を執筆するにあたりアドバイスをくれた同僚達と編集作業をしてくれたfutaboooさん、並びに表紙絵を書いてくださったkarinさんにこの場を借りて深く感謝します。今執筆している文がこうして製本されて頒布されているのは間違いなく皆さんのお陰です。 重ね重ね感謝致します。　
 
-それでは、次の章から本編へ移ります！　
+それでは、次の章から本編へ移ります！
 
 = SPAに求められるパフォーマンス
 
@@ -346,6 +346,286 @@ staleWhileRevalidate	Cache とネットワークの両方から並列に要求�
 
 = SSR(Server Side Rendering)を実現する
 
-最後に、SPAを初めて表示する際のパフォーマンスを更に向上させるために
+最初に解説したコードの分割によって初めて SPA を表示する際のパフォーマンスはある程度向上していますが、クライアントサイドでのレンダリングの前に最低限のレンダリングをサーバー側で行うことで、更にパフォーマンスの向上を図る事が出来ます。
+
+以下の画像はサンプルアプリのログインページで Code Splitting だけ行っている状態と SSR & Code Splitting の両方を行った状態の２つを Light House を使って確認した時の画像ですが、ページ全体が表示されるまでに 900ms 程度かかっていたものが 150ms 程度まで短縮出来ている事が読み取れます。
+
+//image[no-ssr][Code Splitting だけ行っている状態][scale=0.7]{
+//}
+
+//image[with-ssr][SSR & Code Splitting を行っている状態][scale=0.7]{
+//}
+
+確実にパフォーマンス向上が期待できる SSR ですが、反面実現にあたって必要となる事が多く、開発コストが高いです。
+
+まずは SSR を導入した時のレンダリング全体の流れから解説していきます。
+
+== SSR 全体の流れ
+
+SSR を行う場合、レンダリングまでの処理を Isomorphic な処理（サーバーサイドでもクライアントサイドでも同様に振る舞う処理）にする必要があります。
+この制約のため、サンプルアプリで画面が描画されるまでのフローは以下のようになっています。
+
+1. URL を元にルーティングする
+
+2. 定義しておいたルーティングハンドラが URL に対応したコンポーネントの参照キーを re-frame に dispatchする
+
+3. App コンポーネントがコンポーネントの参照キーを元に描画すべきコンポーネントを描画する
+
+4. 画面に描画する
+
+このフローの途中までをサーバーサイドが担い、途中でクライアントサイドへバトンタッチする形で SSR を実現しています。
+続いてはこの処理を一つ一つ掘り下げていきましょう。
+
+== 1. ルーティング
+
+SPA をユーザーが表示する場合、他のページからの遷移の場合と直接ページを開く場合の2パターンが存在します。
+直接ページを開く場合、サーバーへ表示すべきページをリクエストする必要がありますが、ページ遷移の場合はその限りでなくクライアントサイドのみでページ遷移を実現するものと思います。
+
+このどちらのケースにも対応するためにはクライアントサイドルーティングにだけ対応する @<code>{#/foo/bar} のような prefix 付きのパスを使ったルーティングが使用出来ないため、サンプルアプリではルーティングライブラリ（Secretary@<fn>{fn_secretary}）の他にHTML5の pushState API を Wrap した pushy@<fn>{fn_pushy} 利用する事でルーティングを行っています。
+//footnote[fn_secretary][https://github.com/gf3/secretary]
+//footnote[fn_pushy][https://github.com/kibu-australia/pushy]
+
+以下がサンプルアプリでのルーティング設定です。
+クライアントサイドでのみ pushy からブラウザの履歴を Secretary に渡しており、サーバーサイドではリクエストのパスをそのまま Secretary に渡す形でルーティングしています。
+
+//emlist[sample-github-spa/src/cljs-client/sample_github_spa/client.cljs][clojure]{
+(ns sample-github-spa.client
+  (:require
+   ...
+   [pushy.core :as pushy]
+   ...
+   [sample-github-spa.route :as route]
+   ...
+   [secretary.core :as secretary :refer-macros [defroute]]))
+...
+(def history
+  (pushy/pushy secretary/dispatch!
+               (fn [x] (when (secretary/locate-route x) x))))
+
+;; https://github.com/kibu-australia/pushy#routing-libraries から輸入
+(defn hook-history []
+  (pushy/start! history))
+...
+(defn ^:export init []
+  ...
+        (hook-history)
+  ...)
+
+(set! (. js/window -onload) init)
+...
+//}
+
+//emlist[sample-github-spa/src/cljs-server/sample_github_spa/server.cljs][clojure]{
+(ns sample-github-spa.server
+  (:require
+    ...
+    [secretary.core :as secretary]
+    ...))
+
+(def express (js/require "express"))
+(def ^:export app (express))
+...
+(defn handle-render
+  [req res]
+  (let [request-path (.-baseUrl req)]
+    ...
+    (secretary/dispatch! request-path)
+    ...))
+
+(defn serve
+  [path]
+  (.listen app path))
+
+(defn -main
+  [& args]
+  (let [path (-> args first js/parseInt)]
+    ...
+    (serve path)))
+
+(doto app
+  ...
+  (.use "/*" handle-render))
+
+(set! *main-cli-fn* -main)
+//}
+
+これにより、サーバーサイドとクライアントサイドどちらでもルーティングが実現しています。
+
+== 2. ルーティングハンドラとre-frame
+
+2章の Code Splitting & LazyLoad で解説した通り、ルーティング後には画面に必要な分割されたモジュールをLazyLoadしてから画面を表示させます。
+そのためにルーティングハンドラは直接コンポーネントを描画する事はせず、コンポーネントを参照するキーを保存しておいてモジュールの読み込みが完了するのを待ちます。
+
+しかしサーバーサイドにとって Code Splitting は不要でしかなく、ましてや LazyLoad を待つ事でパフォーマンスを阻害しかねないため、サーバーサイドでは利用しないのが常套手段です。
+サンプルアプリも例外ではなく以下のようにサーバーサイドではモジュールの分割を切っています。
+
+//emlist[sample-github-spa/project.clj][clojure]{
+(defproject sample-github-spa "0.1.0-SNAPSHOT"
+  :cljsbuild
+  {:builds
+   [
+    ...
+    {:id           "server-dev"
+     :source-paths ["src/cljs" "src/cljs-server"]
+     :compiler     {:main sample-github-spa.server
+                    :output-dir      "target/server/js/compiled"
+                    :output-to      "target/server/js/compiled/server.js"
+                    :asset-path      "target/server/js/compiled"
+                    :source-map-timestamp true
+                    :target :nodejs
+                    :npm-deps false
+                    :closure-defines {sample-github-spa.server/dev? true
+                                      sample-github-spa.server/static-file-path "resources/public/"}
+                    :pretty-print    true}}
+    {:id           "server-prod"
+     :source-paths ["src/cljs" "src/cljs-server"]
+     :compiler     {:main sample-github-spa.server
+                    :output-dir      "target/server/prod/js/compiled"
+                    :output-to      "target/server/prod/js/compiled/server.js"
+                    :asset-path      "target/server/prod/js/compiled"
+                    :target :nodejs
+                    :npm-deps false
+                    :closure-defines {sample-github-spa.server/dev? false
+                                      sample-github-spa.server/static-file-path "resources/public/prod/"}
+                    :pretty-print    false}}]})
+}
+
+サンプルアプリではこのサーバーサイドとクライアントサイドでのギャップを埋めるため、 LazyLoad のための公式 API を Wrap してサーバーサイドでは回避する方法で愚直に解決することにしました。
+
+//emlist[sample-github-spa/src/cljs/sample_github_spa/util.cljs][clojure]{
+(ns sample-github-spa.util
+  (:require [cljs.loader :as loader]))
+
+(defn universal-load
+  [module-name callback-fn]
+  (if (= cljs.core/*target* "nodejs")
+    (callback-fn)
+    (loader/load module-name callback-fn)))
+
+(defn universal-set-loaded!
+  [module-name]
+  (when-not (= cljs.core/*target* "nodejs")
+    (loader/set-loaded! module-name)))
+//}
+
+上のコードの通り@<code>{(= cljs.core/*target* "nodejs")}が真の時だけ LazyLoad が回避されます。
+
+これにより、ここから先の手順では Code Splitting については意識せずコンポーネントを描画出来るようになっています。
+
+== 3. app コンポーネントによるコンポーネントの描画
+
+app コンポーネントはサンプルの中アプリのサーバーサイド及びクライアントサイド共通の最上位に配置されているコンポーネントで、ルーティングによって定められたコンポーネントをヘッダーやフッターと一緒に描画します。
+
+//emlist[sample-github-spa/src/cljs/sample_github_spa/component.cljs][clojure]{
+...
+(defn app []
+  (let [router (re-frame/subscribe [::sample-github-spa.subs/router])
+        handle-logout #(re-frame/dispatch [::sample-github-spa.events/logout])]
+    [:div
+     [header {:title (-> @router :key route/route-table :title)
+              :handle-logout handle-logout}]
+     [:div {:style {:padding "60px 0 64px 0"}}
+      [(or (some-> @router :key route/route-table :container .call) loading)
+       (-> @router :params)]]
+     (when-not (= (-> @router :key) :login) [nav-bar])]))
+...
+//}
+
+このコンポーネントは re-frame の app-db にのみ依存しているため、サーバーサイドもクライアントサイドも関係なしに 同じ event が dispatch さえされていれば必ず描画されてきます。
+
+最後に、画面で描画されるまでを解説していきます。
+
+== 4. 画面に描画する
+
+SSR を利用している場合でも、クライアントサイドで画面を遷移をして移動先の画面を描画する場合の処理は通常の SPA と全く同様です。
+
+問題は直接ページを開く場合で、この場合は一度サーバーサイドで描画した html をクライアントへ渡したあと、 hydration と言う処理を行ってクライアントサイドのコンポーネントの管理下とする必要があります。
+
+まず、先までの 1->2->3 の容量でユーザーのリクエストから app コンポーネントがサーバーサイドで形作られます。
+
+この app コンポーネントを html として描画した後、描画した時の app-db の状態を一度 EDN@<fn>{fn_edn} 形式にシリアライズして html と一緒にクライアントサイドへ返します。
+//footnote[fn_edn][https://github.com/edn-format/edn]
+
+//emlist[sample-github-spa/src/cljs-server/sample_github_spa/server.cljs][clojure]{
+...
+(defn index []
+  [:html {:lang "en"}
+   ...
+   [:body
+    [:div#app
+     [component/app]]
+   ...
+   [:div
+    {:dangerouslySetInnerHTML
+     {:__html  (str "<script>window.preload = '" (-> @db/app-db pr-str) "'</script>")}}]
+   ...])
+...
+(defn handle-render
+  [req res]
+  (let [request-path (.-baseUrl req)]
+    (re-frame/dispatch-sync [::events/initialize])
+    (secretary/dispatch! request-path)
+    (.format res #js {"text/html" #(.send res (r/render-to-string [index]))})))
+...
+//}
+
+返ってきた html が描画された後、クライアントサイドでは html に埋め込まれた app-db の状態から app-db を復元させます。
+
+//emlist[sample-github-spa/src/cljs-client/sample_github_spa/client.cljs][clojure]{
+...
+(defn- preload-state []
+  (some->
+    js/window
+    (aget "preload")
+    reader/read-string))
+
+(defn ^:export init []
+  (let [preload (preload-state)]
+    (re-frame/dispatch-sync [::events/initialize history preload])
+    ...))
+...
+//}
+
+こうしてパラメータとして app-db の状態を受けとった@<code>{::events/initialize} event が app-db を復元します。
+また、この時一緒に付与されている history パラメータは re-frame からページ遷移を行うために渡された pushState API のオブジェクトです。
+
+//emlist[sample-github-spa/src/cljs-client/sample_github_spa/client.cljs][clojure]{
+...
+(re-frame/reg-event-fx
+ ::initialize
+ (fn [{:keys []} [_ history preload]]
+   (as-> {:db db/default-db} $
+     (if preload (update $ :db #(merge % preload)))
+     (if history (assoc-in $ [:db :history] history) $))))
+//}
+
+app-db を復元した後で、いよいよ既に画面に描画されているコンポーネントを hydrate する事で、あたかもクライアントサイドの app コンポーネントが描画されたかのようにサーバーサイドで描画された html が紐付けられます。
+
+//emlist[sample-github-spa/src/cljs-client/sample_github_spa/client.cljs][clojure]{
+...
+(defn ^:export mount-root []
+  ...
+  (reagent/render [component/app]
+                  (.getElementById js/document "app")))
+
+(defn- preload-state []
+  (some->
+    js/window
+    (aget "preload")
+    reader/read-string))
+
+(defn ^:export init []
+  (let [preload (preload-state)]
+    (util/universal-load (-> preload :router :key route/route-table :module-name)
+      (fn []
+        (re-frame/dispatch-sync [::events/initialize history preload])
+	...
+        (mount-root)))))
+...
+//}
+
+この時にクライアントサイド側の app コンポーネントと html として描画されている app コンポーネントが一致しなかった場合、クライアントサイドの app コンポーネントの描画で上書きされてしまうのですが、サーバーサイドから受け取った app-db の状態を復元した同じ状態で描画しているため無事 hydrate されます。
+
+以上が SSR 実現までのフローになります。
 
 = 終わりに
