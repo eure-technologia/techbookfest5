@@ -5,22 +5,23 @@
 普段はAndroidアプリの開発をメインでやっている、@<href>{https://twitter.com/zukkey59, @zukkey}です。
 今回は、ARに興味を持った筆者がAndroidでARCoreを導入して開発してみたいという初心者の方向けに導入手順の紹介とどういったことができるのかなどを解説していこうと思います。
 
-この本に書いてあることは次のとおりです。
+対象読者と大体の内容は次のとおりです。
+
+ * 対象読者
  ** 初心者でARを始めてみたい！という方に導入から紹介します
  ** UnityじゃなくてAndroidStudioでやる方法を書いています
 
  * ARCoreとは
- ** AndroidStudioで開発するための準備
- ** ARCoreでできること
+ ** AndroidStudioで開発するための諸準備
+ ** ARCoreでできることの内容
 
  * Sceneform
- ** Widgetの表示
- ** 図形の表示
- ** 3Dモデルの表示
+ ** 3Dモデルの導入と表示のやり方
+ ** AndroidのWidgetの表示とクリック処理などのやり方
 
  * Augmented Images
- ** The arcoreimg toolを使って画像マーカーにできるかを知る
- ** 画像をマーカーにして3Dモデルを表示してみよう
+ ** The arcoreimg toolを使って画像マーカーにできるかを知り、データベースを作成する方法
+ ** 画像をマーカーにして3Dモデルを表示するまでの手順と解説
 
 = ARCoreをAndroidStudioではじめよう！
 == ARCoreとは
