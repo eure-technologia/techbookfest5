@@ -1,23 +1,3 @@
-
-= まえがき
-
-「Clojureで作るハイパフォーマンスSPA」を手にとって頂き、ありがとうございます。
-本書は、著者が業務中に実践しているパフォーマンスに配慮したSPAをClojureで実現するまでの手法をまとめたものです。
-応用的な内容のためある程度Clojureについての前提知識が必要かと思いますが、本書がClojureでWebフロントエンド開発をする際に少しでも役に立てれば幸いです。
-
-//image[sample-spa-top][作成するサンプルアプリ][scale=0.5]{
-//}
-
-本書では、上の画像のようなGitHubクライアントアプリケーションの完成までの経緯を振り返りながら解説していきます。
-完成後のものが https://sample-github-spa.now.sh にデプロイされているので、GitHubのアカウントがあれば是非一度お試しください。
-
-また、本書の中で登場するサンプルコードは全てGitHub上のレポジトリsample-github-spa(https://github.com/boxp/sample-github-spa)に用意しております。
-途中コードを用いて説明する際は、このレポジトリ内のソースコードのパスを明記しているので予め clone しておいて適宜参照いただければ幸いです。
-
-最後に、本書を執筆するにあたりアドバイスをくれた同僚達と編集作業をしてくれたfutaboooさん、並びに表紙絵を書いてくださったkarinさんにこの場を借りて深く感謝します。今執筆している文がこうして製本されて頒布されているのは間違いなく皆さんのお陰です。 重ね重ね感謝致します。
-
-それでは、次の章から本編へ移ります。
-
 = SPAに求められるパフォーマンス
 
 SPA(Single Page Application)に関わらず、Webページのパフォーマンスを向上させる事はユーザー体験の向上を考える上でとても重要なことです。
@@ -120,7 +100,7 @@ Clojure で LazyLoad を実現するためには、 ClojureScript（ Clojure か
                 :module-name :repository}
    :about-repository {:title "About Repository"
                       :container #(resolve
-                                 'sample-github-spa.repository.container/detail)
+                              'sample-github-spa.repository.container/detail)
                       :module-name :repository}
    :activity {:title "Activity"
               :container #(resolve
@@ -631,17 +611,3 @@ app-db を復元した後で、いよいよ既に画面に描画されている�
 この時にクライアントサイド側の app コンポーネントと html として描画されている app コンポーネントが一致しなかった場合、クライアントサイドの app コンポーネントの描画で上書きされてしまうのですが、サーバーサイドから受け取った app-db の状態を復元した同じ状態で描画しているため無事 hydrate されます。
 
 以上が SSR 実現までのフローになります。
-
-= 終わりに
-
-Code Splitting & LazyLoad, Service Worker, Server Side Rendering と駆け足で解説してきましたが今回はこれでおしまいです。
-ここまで読んでいただき、本当にありがとうございました。
-
-今回のテーマは、著者が最近業務で React + Redux や webpack などを通して取り組んだ Code Spliting と SSR の両立や Service Workerの設定などを、趣味で使っていた Leiningen と Clojure と Reagent & re-frame ではどうやったら実現出来るのかをただ試したくて取り組んだものでした。
-
-かつて React + Redux でも苦戦した Code Splitting と SSR の両立など、 Clojure でもだいぶ苦戦はしましたが、なんとか無事技術書典までに形に出来てよかったと思うばかりです。
-
-最後に重ねてですが、この本を手に取って頂き本当にありがとうございました。
-本書の内容が少しでも助けになれば幸いです。
-
-それでは、またいつかどこかでお会いしましょう！

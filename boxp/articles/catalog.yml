@@ -7,4 +7,5 @@ CHAPS:
 APPENDIX:
 
 POSTDEF:
+  - postfix.re
   - contributors.re
