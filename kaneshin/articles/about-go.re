@@ -10,7 +10,7 @@ The Go programming language was conceived in late 2007 as an answer to some of t
 Go was designed and developed to make working in this environment more productive. Besides its better-known aspects such as built-in concurrency and garbage collection, Go's design considerations include rigorous dependency management, the adaptability of software architecture as systems grow, and robustness across the boundaries between components.
 //}
 
-Go at Googleには、Googleではソフトウェアの開発や様々な環境下で増え続ける問題への対処のために開発されたと書かれていたり、また、開発の利便性を捨てて、大規模ソフトウェアの問題に対処することにフォーカスをしています。
+Go at Googleには、Googleではソフトウェアの開発やさまざまな環境下で増え続ける問題への対処のために開発されたと書かれていたり、また、開発の利便性を捨てて、大規模ソフトウェアの問題に対処することにフォーカスをしています。
 
 つまり、Goは開発のしやすさではなく、大規模ソフトウェア開発にまつわる問題を解決するために開発されたと言えるでしょう。そのため、プログラミング言語を深く探求する人には言語仕様上、物足りなさを感じると思います。Goは問題解決のために作られたプログラミング言語ということが思想としてあります。
 
@@ -22,7 +22,7 @@ Goを開発した方たちは、UNIXやC言語の開発者でもあるため、�
 
 === マキルロイのUNIX哲学
 
-マルコム・ダグラス・マキルロイ (Malcolm Douglas McIlroy) は、UNIX創始者の一人であり、プロセス間通信を標準入出力を介して接続するパイプの発明者でもあります。マキルロイはUNIX哲学を以下のように形にしています。
+マルコム・ダグラス・マキルロイ (Malcolm Douglas McIlroy) は、UNIX創始者の一人であり、プロセス間通信を標準入出力を介して接続するパイプの発明者でもあります。マキルロイはUNIX哲学をつぎのように形にしています。
 
 //quote{
 これがUNIXの哲学である。
@@ -31,10 +31,10 @@ Goを開発した方たちは、UNIXやC言語の開発者でもあるため、�
 標準入出力（テキスト・ストリーム）を扱うプログラムを書け。標準入出力は普遍的インターフェースなのだ。
 //}
 
-"Do One Thing and Do It Well"、「ひとつのことを、うまくやれ」と要約されるこの哲学において、Goでツールを開発するとき、無駄な責務を与えないように開発をします。特に意識しているのは下記の点です。
+"Do One Thing and Do It Well"、「ひとつのことを、うまくやれ」と要約されるこの哲学において、Goでツールを開発するとき、無駄な責務を与えないように開発をします。特に意識しているのはつぎの点です。
 
-1. ひとつの責務に集中させる
-2. 他のプログラムに連携可能にする
+ 1. ひとつの責務に集中させる
+ 2. 他のプログラムに連携可能にする
 
 ==== ひとつの責務に集中させる
 

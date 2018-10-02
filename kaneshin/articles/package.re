@@ -63,9 +63,9 @@ func main() {
 
 シンプルに記述されていますが、これを実行することによって、@<tt>{people}のスライスを@<tt>{Person.Age}によって昇順と降順のソートを行っています。昇順では@<tt>{sort.Interface}を満たし、降順では@<tt>{sort.Slice}をそれぞれ利用して、ソート処理を実現しています。
 
-=== @<tt>{sort.Interface}、@<tt>{sort.Sort}
+=== sort.Interface、sort.Sort
 
-@<sort.Interface}は、@<tt>{interface}に３つの関数を定義しており、それらの関数を定義した型を提供するだけで、@<tt>{sort.Sort}を実行することができます。
+@<tt>{sort.Interface}は、@<tt>{interface}に３つの関数を定義しており、それらの関数を定義した型を提供するだけで、@<tt>{sort.Sort}を実行することができます。
 
 //emlist[][go]{
 // A type, typically a collection, that satisfies sort.Interface can be
@@ -84,9 +84,9 @@ type Interface interface {
 
 @<tt>{Len() int}、@<tt>{Less(int, int) bool}、@<tt>{Swap() (int, int)}の３つは、ソート処理を行うときに、「これらの情報さえ知っておけば、ソート処理は実現可能」ということを示しています。
 
-* @<tt>{Len() int}: ソートするコレクションの要素数
-* @<tt>{Less(int, int) bool}: ソートにおける要素の比較
-* @<tt>{Swap() (int, int)}: ソートにおける要素の入れ替え
+ * @<tt>{Len() int}: ソートするコレクションの要素数
+ * @<tt>{Less(int, int) bool}: ソートにおける要素の比較
+ * @<tt>{Swap() (int, int)}: ソートにおける要素の入れ替え
 
 これらを満たし、@<tt>{sort.Sort}の引数に変数を渡して呼び出すことにより、ソート処理を実行します。
 
@@ -116,10 +116,9 @@ func main() {
 
 簡略化しましたが、この例では、@<tt>{Person.Age}をもとにソート可能にするため、@<tt>{sort.Interface}を満たす@<tt>{ByAge}を定義しています。このように、@<tt>{ByAge}のように別で型を提供し、@<tt>{sort.Sort(ByAge(people))}のように実行することで、ソート処理の責務のみとなり、シンプルさが際立ちます。
 
-=== @<tt>{sort.Slice}
+=== sort.Slice
 
-@<tt>{func Slice(slice interface{}, less func(i, j int) bool)}のシグネチャで用意されている@<tt>{sort.Slice}関数ですが、ソート対象のスライスと、ソートをする際の要素比較を関数として渡すことにより、@<tt>{sort.Interface}を満たす型を提供せずとも、ソート処理が実現可能です。
-
+@<tt>{func Slice(slice interface\{\}, less func(i, j int) bool)}のシグネチャで用意されている@<tt>{sort.Slice}関数ですが、ソート対象のスライスと、ソートをする際の要素比較を関数として渡すことにより、@<tt>{sort.Interface}を満たす型を提供せずとも、ソート処理が実現可能です。
 //emlist[][go]{
 type Person struct {
     Name string
@@ -144,7 +143,7 @@ func main() {
 @<tt>{sort.Interface}と比べれば、コード量が削減されていますし、@<tt>{ByAge}のような型も定義せずに、ソート処理が可能です。こちらの方が実用性が高いかもしれませんが、時には、ソート処理を満たした型を明示した方が可読性があがることももちろんあります。可読性、保守性の観点で、必要に応じて使い分けることが重要です。
 
 
-=== @<tt>{sort.Sort}の内部処理
+=== sort.Sortの内部処理
 
 パッケージのAPIとなるI/Fの設計ですが、@<tt>{sort.Sort}では@<tt>{sort.Interface}を引数に渡して呼び出すI/Fとなっています。しかし、処理の内部では、スライスの長さによって、アルゴリズムを変更するなど、振る舞いを変更しています。このような設計であれば、場合によって、処理実行における、前処理や後処理を行うことができます。このように、パッケージが提供しているAPIのI/Fを変更せず、内部アルゴリズムを変更することによって、使い手側は内部を知らずとも、最適なアルゴリズムで処理してくれることを担保できます。
 
@@ -157,8 +156,6 @@ func quickSort(data Interface, a, b, maxDepth int) {
         }
         maxDepth--
         mlo, mhi := doPivot(data, a, b)
-        // Avoiding recursion on the larger subproblem guarantees
-        // a stack depth of at most lg(b-a).
         if mlo-a < b-mhi {
             quickSort(data, a, mlo, maxDepth)
             a = mhi // i.e., quickSort(data, mhi, b)
@@ -168,8 +165,6 @@ func quickSort(data Interface, a, b, maxDepth int) {
         }
     }
     if b-a > 1 {
-        // Do ShellSort pass with gap 6
-        // It could be written in this simplified form cause b-a <= 12
         for i := a + 6; i < b; i++ {
             if data.Less(i, i-6) {
                 data.Swap(i, i-6)
@@ -179,9 +174,6 @@ func quickSort(data Interface, a, b, maxDepth int) {
     }
 }
 
-// Sort sorts data.
-// It makes one call to data.Len to determine n, and O(n*log(n)) calls to
-// data.Less and data.Swap. The sort is not guaranteed to be stable.
 func Sort(data Interface) {
     n := data.Len()
     quickSort(data, 0, n, maxDepth(n))
@@ -192,9 +184,7 @@ sortパッケージのsort.goでは、@<tt>{quickSort}の処理をスライス�
 
 == sortパッケージを模倣する
 
-sortパッケージを模倣し、スライスの要素をシャッフルするshuffleパッケージというのを作成します。
-
-やり方は、sortパッケージと似たように、@<tt>{shuffle.Interface}と@<tt>{shuffle.Shuffle}という型と関数を定義します。
+sortパッケージを模倣し、スライスの要素をシャッフルするshuffleパッケージというのを作成します。やり方は、sortパッケージと似たように、@<tt>{shuffle.Interface}と@<tt>{shuffle.Shuffle}という型と関数を定義します。
 
 //emlist[][go]{
 package shuffle
@@ -222,9 +212,9 @@ func Shuffle(data Interface) {
 
 @<tt>{shuffle.Interface}は、シャッフルするのに必要な情報だけを取得できるよ、最低限の３つの関数を定義しています。
 
-* @<tt>{Seed() int64}: シャッフルするときのシードを設定する
-* @<tt>{Len() int}: シャッフルするコレクションの要素数
-* @<tt>{Swap() (int, int)}: シャッフルする要素の入れ替え
+ * @<tt>{Seed() int64}: シャッフルするときのシードを設定する
+ * @<tt>{Len() int}: シャッフルするコレクションの要素数
+ * @<tt>{Swap() (int, int)}: シャッフルする要素の入れ替え
 
 このような@<tt>{interface}を提供することで、使用先では下記のように使用することができます。@<fn>{fn_playground_shuffle}
 //footnote[fn_playground_shuffle][サンプルコード: https://github.com/kaneshin/playground/blob/master/shuffle/example/main.go]
