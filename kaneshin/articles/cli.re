@@ -41,34 +41,34 @@ cmd配下で作成するファイルでは、ビジネスロジックとなる�
 var decode = flag.Bool("d", false, "decode data")
 
 func doEncode(dst io.Writer, src []byte) error {
-	enc := qrcode.NewEncoder(dst)
-	return enc.Encode(src)
+    enc := qrcode.NewEncoder(dst)
+    return enc.Encode(src)
 }
 
 func doDecode(dst io.Writer, src []byte) error {
-	buf := bytes.NewBuffer(src)
-	dec := qrcode.NewDecoder(buf)
-	return dec.Decode(dst)
+    buf := bytes.NewBuffer(src)
+    dec := qrcode.NewDecoder(buf)
+    return dec.Decode(dst)
 }
 
 func do(r io.Reader) error {
-	src, err := ioutil.ReadAll(r)
-	if err != nil {
-		return err
-	}
+    src, err := ioutil.ReadAll(r)
+    if err != nil {
+        return err
+    }
 
-	var buf bytes.Buffer
-	if *decode {
-		err = doDecode(&buf, src)
-	} else {
-		err = doEncode(&buf, src)
-	}
-	if err != nil {
-		return err
-	}
+    var buf bytes.Buffer
+    if *decode {
+        err = doDecode(&buf, src)
+    } else {
+        err = doEncode(&buf, src)
+    }
+    if err != nil {
+        return err
+    }
 
-	os.Stdout.Write(buf.Bytes())
-	return nil
+    os.Stdout.Write(buf.Bytes())
+    return nil
 }
 //}
 
@@ -95,29 +95,29 @@ CLIツールにて、標準入力からテキストを入力されることに�
 
 //emlist[][go]{
 func run() error {
-	var name string
-	if args := flag.Args(); len(args) > 0 {
-		name = args[0]
-	}
+    var name string
+    if args := flag.Args(); len(args) > 0 {
+        name = args[0]
+    }
 
-	var r io.Reader
-	switch name {
-	case "", "-":
+    var r io.Reader
+    switch name {
+    case "", "-":
         // ケース：標準入力
         // $ echo 'input' | command
         //  or
         // $ command -
-		r = os.Stdin
-	default:
+        r = os.Stdin
+    default:
         // ケース：ファイル
         // $ command FILENAME
-		f, err := os.Open(name)
-		if err != nil {
-			panic(err)
-		}
-		defer f.Close()
-		r = f
-	}
+        f, err := os.Open(name)
+        if err != nil {
+            panic(err)
+        }
+        defer f.Close()
+        r = f
+    }
 
     // ...
 }
@@ -127,27 +127,27 @@ func run() error {
 
 //emlist[][go]{
 func main() {
-	fi, err := os.Stdin.Stat()
-	if err != nil {
-		panic(err)
-	}
+    fi, err := os.Stdin.Stat()
+    if err != nil {
+        panic(err)
+    }
 
-	var r io.Reader
-	if fi.Mode()&os.ModeNamedPipe == os.ModeNamedPipe {
-		r = os.Stdin
-	} else {
-		args := flag.Args()
-		if len(args) == 0 {
-			r = os.Stdin
-		} else {
-			f, err := os.Open(args[0])
-			if err != nil {
-				panic(err)
-			}
-			defer f.Close()
-			r = f
-		}
-	}
+    var r io.Reader
+    if fi.Mode()&os.ModeNamedPipe == os.ModeNamedPipe {
+        r = os.Stdin
+    } else {
+        args := flag.Args()
+        if len(args) == 0 {
+            r = os.Stdin
+        } else {
+            f, err := os.Open(args[0])
+            if err != nil {
+                panic(err)
+            }
+            defer f.Close()
+            r = f
+        }
+    }
 }
 //}
 
