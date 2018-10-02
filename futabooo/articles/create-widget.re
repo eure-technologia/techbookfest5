@@ -68,6 +68,51 @@ Run/Debug Configurationsを開き、@<strong>{Launch Options}のLaunchのプル�
 
 
 == StackViewを使ったWidgetを作る
+StackViewをつかったWidgetのサンプルの実装が公式でも公開されています。今回は公開されているサンプルのコードをもとに紹介していきたいと思います。StackViewのようにlist形式のデータを扱う場合のWidgetでは少し複雑な処理が必要となります。そこで登場するのが次の2つのクラスです。
+
+* RemoteViewsService
+* RemoteViewsService.RemoteViewsFactory
+
+普段のAndroidアプリ開発においてリストのデータを扱う場合にはArrayAdapterやRecyclerView.Adapterクラスを使って
+
+==== StackWidgetService
+
+==== StackRemoteViewsFactory
+
+==== StackWidgetのlayout.xml
+//list[stackview][stackview][xml]{
+<?xml version="1.0" encoding="utf-8"?>
+<StackView xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/stack_view"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+  android:loopViews="true" />
+//}
+
+//list[emptyview][emptyview][xml]{
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+  <StackView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/stack_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:loopViews="true" />
+  <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/empty_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:background="@drawable/widget_item_background"
+    android:textColor="#ffffff"
+    android:textStyle="bold"
+    android:text="@string/empty_view_text"
+    android:textSize="20sp" />
+</FrameLayout>
+//}
+
 
 == Githab APIを使ったWidgetを作る
 
