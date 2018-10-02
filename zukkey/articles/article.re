@@ -1,28 +1,3 @@
-
-= 序章
-== はじめに
-こんにちは！はじめまして！
-普段はAndroidアプリの開発をメインでやっている、@<href>{https://twitter.com/zukkey59, @zukkey}です。
-今回は、ARに興味を持った筆者がAndroidでARCoreを導入して開発してみたいという初心者の方向けに導入手順の紹介とどういったことができるのかなどを解説していこうと思います。
-
-対象読者と大体の内容は次のとおりです。
-
- * 対象読者
- ** 初心者でARを始めてみたい！という方に導入から紹介します
- ** UnityじゃなくてAndroidStudioでやる方法を書いています
-
- * ARCoreとは
- ** AndroidStudioで開発するための諸準備
- ** ARCoreでできることの内容
-
- * Sceneform
- ** 3Dモデルの導入と表示のやり方
- ** AndroidのWidgetの表示とクリック処理などのやり方
-
- * Augmented Images
- ** The arcoreimg toolを使って画像マーカーにできるかを知り、データベースを作成する方法
- ** 画像をマーカーにして3Dモデルを表示するまでの手順と解説
-
 = ARCoreをAndroidStudioではじめよう！
 == ARCoreとは
 ARCoreとは、Googleが提供しているSDKです。AR機能に必須のモーショントラッキングや環境、
@@ -46,7 +21,7 @@ AndroidStudioはversion3.1以上のものをインストールしてください
 
 AndroidStudio > About AndroidStudioから次の画像のようにバージョンの確認ができます。
 
-//image[techbookfest5-1][AndroidStudioのバージョン確認画面][scale=0.8]{
+//image[techbookfest5-1][AndroidStudioのバージョン確認画面][scale=0.7]{
     techbookfest5-1
 //}
 
@@ -195,7 +170,7 @@ Sceneformを用いることで、3Dモデルを表示したり、Androidの標�
 AndroidStudioのPreferencesのPlugins > Browse repositoriesにてGoogle Sceneform Toolsと検索してください。
 検索した結果が次のようになると思います。
 
-//image[plugin01][Google Sceneform Tools検索時][scale=0.8]{
+//image[plugin01][Google Sceneform Tools検索時][scale=0.7]{
     plugin01
 //}
 
@@ -206,7 +181,7 @@ build.gradleの依存関係を自動的に追加してくれるプラグイン�
 それでは実際に、3Dモデルを導入していくところからやっていきましょう。
 
 導入の前に、もし3Dモデルを用意するのが難しい場合は、Google公式で次のサイトから3Dモデルを利用することが可能です。
-//image[poly01][Poly - 無料の3Dオブジェクトライブラリ][scale=0.8]{
+//image[poly01][Poly - 無料の3Dオブジェクトライブラリ][scale=0.7]{
     poly01
 //}
 
@@ -268,7 +243,7 @@ sampledata directoryの中身が次のとおりになっていることを確認
 
 その次にsampledataを右クリックして、New > Sceneform Assetを選択します。
 選択した後、次の画像のようにImport Wizardが出てきます。
-//image[Sceneform01][選択前のImport Wizard][scale=0.8]{
+//image[Sceneform01][選択前のImport Wizard][scale=0.7]{
     Sceneform01
 //}
 
@@ -279,14 +254,14 @@ res > rawを.sfb Output Pathに指定している場合は_がPathに入って�
 今回は、res配下にてrawフォルダを追加してPathを設定していきます。
 ここまで設定をすると、次の画像のようになります。
 
-//image[Sceneform02][選択後のImport Wizard][scale=0.8]{
+//image[Sceneform02][選択後のImport Wizard][scale=0.7]{
     Sceneform02
 //}
 
 この状態でFinishを選択すると、次のようにエラーが吐かれることがあります。
 ERROR: Multiple different usages defined for texture: FX
 これは、mtlファイル内でFXというテクスチャが複数定義されているために起こるバグになります。
-//image[mtlFileError][mtlファイルのError画面][scale=0.8]{
+//image[mtlFileError][mtlファイルのError画面][scale=0.7]{
     mtlFileError
 //}
 
@@ -295,7 +270,7 @@ map_dとmap_Kdが同じテクスチャを指定しているのが原因なので
 map_d hogehoge/FX.pngとなっているのを、map_d ./FX.pngと修正してください。
 
 導入がうまくいくと、次のような画面に自動的に遷移します。
-//image[importComplete][3Dモデル導入後の画面][scale=0.8]{
+//image[importComplete][3Dモデル導入後の画面][scale=0.7]{
     importComplete
 //}
 
@@ -332,7 +307,7 @@ Nodeは、ちょっと理解が難しい部分であり公式のドキュメン�
 白いドットのスペース(Plane)にAnchorで現実世界の位置と向きを決め、AnchorNodeで構築しているシーンに位置を変換し、
 レンダリングした3DモデルのオブジェクトをNodeで変換し表示していると考えます。
 
-//image[PlaneRender][公式サンプル画像(Plane)][scale=0.8]{
+//image[PlaneRender][公式サンプル画像(Plane)][scale=0.7]{
     PlaneRender
 //}
 
