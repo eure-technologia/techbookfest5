@@ -4,10 +4,10 @@ PREDEF:
 CHAPS:
   - introduction.re
   - about-go.re
-  // - package.re
+  - package.re
   - test-bench.re
   - cli.re
-  // - article.re
+  - article.re
 
 APPENDIX:
 

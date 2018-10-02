@@ -12,11 +12,11 @@
 完成後のものが https://sample-github-spa.now.sh にデプロイされているので、GitHubのアカウントがあれば是非一度お試しください。
 
 また、本書の中で登場するサンプルコードは全てGitHub上のレポジトリsample-github-spa(https://github.com/boxp/sample-github-spa)に用意しております。
-途中コードを用いて説明する際は、このレポジトリ内のソースコードのパスを明記しているので予めダウンロードしておいて適宜参照いただければ幸いです。
+途中コードを用いて説明する際は、このレポジトリ内のソースコードのパスを明記しているので予め clone しておいて適宜参照いただければ幸いです。
 
-最後に、本書を執筆するにあたりアドバイスをくれた同僚達と編集作業をしてくれたfutaboooさん、並びに表紙絵を書いてくださったkarinさんにこの場を借りて深く感謝します。今執筆している文がこうして製本されて頒布されているのは間違いなく皆さんのお陰です。 重ね重ね感謝致します。　
+最後に、本書を執筆するにあたりアドバイスをくれた同僚達と編集作業をしてくれたfutaboooさん、並びに表紙絵を書いてくださったkarinさんにこの場を借りて深く感謝します。今執筆している文がこうして製本されて頒布されているのは間違いなく皆さんのお陰です。 重ね重ね感謝致します。
 
-それでは、次の章から本編へ移ります！
+それでは、次の章から本編へ移ります。
 
 = SPAに求められるパフォーマンス
 
@@ -47,9 +47,7 @@ SPAを初めて表示する時のロード時間を短縮する手段として�
 
 == Code Splitting
 
-サンプルアプリでは以下の図のようにログイン画面・リポジトリ一覧画面・リポジトリ詳細画面・アクティビティ一覧画面・アクティビティ詳細画面の５つの画面に分かれています。
-
-#@# ここに画面遷移図を置く
+サンプルアプリはログイン画面・リポジトリ一覧画面・リポジトリ詳細画面・アクティビティ一覧画面・アクティビティ詳細画面の５つの画面に分かれています。
 
 この内の一覧画面と詳細画面は頻繁にそれぞれへ遷移する画面なので一つのモジュールにまとめるとして、最終的に全画面共通のモジュール (app-shell) とレポジトリ画面、アクティビティ画面、ログイン画面の4つに分割します。
 
@@ -77,11 +75,8 @@ SPAを初めて表示する時のロード時間を短縮する手段として�
   :cljsbuild
   {:builds
    [{:id           "dev"
-     :source-paths ["src/cljs" "src/cljs-client"]
-     :figwheel     {:on-jsload "sample-github-spa.client/mount-root"}
-     :compiler     {:main sample-github-spa.client
 		    ...
-                    :modules ~(modules "resources/public/js/compiled")}} ;; <- ここでモジュールを定義する
+                    :modules ~(modules "resources/public/js/compiled")}}
 ...
 //}
 
@@ -116,24 +111,31 @@ Clojure で LazyLoad を実現するためには、 ClojureScript（ Clojure か
 ...
 (def route-table
   {:login {:title "Login"
-           :container #(resolve 'sample-github-spa.auth.container/box)
+           :container #(resolve
+                      'sample-github-spa.auth.container/box)
            :module-name :auth}
    :repository {:title "Repository"
-                :container #(resolve 'sample-github-spa.repository.container/grid-box)
+                :container #(resolve
+                           'sample-github-spa.repository.container/grid-box)
                 :module-name :repository}
    :about-repository {:title "About Repository"
-                      :container #(resolve 'sample-github-spa.repository.container/detail)
+                      :container #(resolve
+                                 'sample-github-spa.repository.container/detail)
                       :module-name :repository}
    :activity {:title "Activity"
-              :container #(resolve 'sample-github-spa.activity.container/timeline)
+              :container #(resolve
+                         'sample-github-spa.activity.container/timeline)
               :module-name :activity}
    :about-activity {:title "About Activity"
-                    :container #(resolve 'sample-github-spa.activity.container/detail)
+                    :container #(resolve
+                               'sample-github-spa.activity.container/detail)
                     :module-name :activity}})
 
 (defn- lazy-push
   [key params]
-  (util/universal-load (-> route-table key :module-name) #(re-frame/dispatch-sync [::events/push key params])))
+  (util/universal-load
+    (-> route-table key :module-name)
+    #(re-frame/dispatch-sync [::events/push key params])))
 
 ;; ルーティング定義
 (defroute root-path "/" []
@@ -141,7 +143,7 @@ Clojure で LazyLoad を実現するためには、 ClojureScript（ Clojure か
 ...
 //}
 
-例によって@<code>{util/universal-load} が@<code>{cljs.loader/load}を内部で呼び出す Wrapper になってるのですが、@<code>{cljs.loader/load}として読み取ってください。
+例によって@<code>{util/universal-load}が@<code>{cljs.loader/load}を内部で呼び出す Wrapper になってるのですが、@<code>{cljs.loader/load}として読み取ってください。
 
 @<code>{cljs.loader/load}はロードするモジュール名とロード完了後の callback 関数を受け取る関数で、サンプルコードではページ遷移をハンドルする@<code>{(defroute ...)}がこれを呼び出す事で画面に対応したモジュールを LazyLoad しています。
 
@@ -307,6 +309,7 @@ module.exports = {
 
 @<code>{"handler"}で指定されるキャッシュ戦略は、対象の URL からのレスポンスに対するキャッシュを利用するタイミングをいくつかのパターンから選び取れるもので、以下のものから一つ選んで決定します。
 
+//tsize[30,90]
 //table[cache_strategy][キャッシュ戦略一覧]{
 handler	内容
 ------
@@ -336,7 +339,21 @@ staleWhileRevalidate	Cache とネットワークの両方から並列に要求�
 }
 //}
 
-最後に生成したソースコードを Service Worker として登録する必要がありますが、そこに関しては次の SSR についての章で解説します。
+最後に生成したソースコードを Service Worker として登録します。
+
+//emlist[sample-github-spa/src/cljs-server/sample_github_spa/server.cljs][html]{
+	<script>
+        // Check that service workers are registered
+        if ('serviceWorker' in navigator) {
+            // Use the window load event to keep the page load performant
+            window.addEventListener('load', () => {
+                  navigator.serviceWorker.register('/sw.js');
+            });
+        }
+	</script>
+//}
+
+続いて SSR について解説していきます。
 
 = SSR(Server Side Rendering)を実現する
 
@@ -458,7 +475,8 @@ SPA をユーザーが表示する場合、他のページからの遷移の場�
                     :target :nodejs
                     :npm-deps false
                     :closure-defines {sample-github-spa.server/dev? true
-                                      sample-github-spa.server/static-file-path "resources/public/"}
+                                      sample-github-spa.server/static-file-path
+                                      "resources/public/"}
                     :pretty-print    true}}
     {:id           "server-prod"
      :source-paths ["src/cljs" "src/cljs-server"]
@@ -469,7 +487,8 @@ SPA をユーザーが表示する場合、他のページからの遷移の場�
                     :target :nodejs
                     :npm-deps false
                     :closure-defines {sample-github-spa.server/dev? false
-                                      sample-github-spa.server/static-file-path "resources/public/prod/"}
+                                      sample-github-spa.server/static-file-path
+                                      "resources/public/prod/"}
                     :pretty-print    false}}]})
 }
 
@@ -540,7 +559,8 @@ SSR を利用している場合でも、クライアントサイドで画面を�
    ...
    [:div
     {:dangerouslySetInnerHTML
-     {:__html  (str "<script>window.preload = '" (-> @db/app-db pr-str) "'</script>")}}]
+     {:__html
+      (str "<script>window.preload = '" (-> @db/app-db pr-str) "'</script>")}}]
    ...])
 ...
 (defn handle-render
@@ -599,7 +619,8 @@ app-db を復元した後で、いよいよ既に画面に描画されている�
 
 (defn ^:export init []
   (let [preload (preload-state)]
-    (util/universal-load (-> preload :router :key route/route-table :module-name)
+    (util/universal-load
+      (-> preload :router :key route/route-table :module-name)
       (fn []
         (re-frame/dispatch-sync [::events/initialize history preload])
 	...
@@ -612,3 +633,15 @@ app-db を復元した後で、いよいよ既に画面に描画されている�
 以上が SSR 実現までのフローになります。
 
 = 終わりに
+
+Code Splitting & LazyLoad, Service Worker, Server Side Rendering と駆け足で解説してきましたが今回はこれでおしまいです。
+ここまで読んでいただき、本当にありがとうございました。
+
+今回のテーマは、著者が最近業務で React + Redux や webpack などを通して取り組んだ Code Spliting と SSR の両立や Service Workerの設定などを、趣味で使っていた Leiningen と Clojure と Reagent & re-frame ではどうやったら実現出来るのかをただ試したくて取り組んだものでした。
+
+かつて React + Redux でも苦戦した Code Splitting と SSR の両立など、 Clojure でもだいぶ苦戦はしましたが、なんとか無事技術書典までに形に出来てよかったと思うばかりです。
+
+最後に重ねてですが、この本を手に取って頂き本当にありがとうございました。
+本書の内容が少しでも助けになれば幸いです。
+
+それでは、またいつかどこかでお会いしましょう！

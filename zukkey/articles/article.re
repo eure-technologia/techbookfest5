@@ -26,8 +26,8 @@
 = ARCoreをAndroidStudioではじめよう！
 == ARCoreとは
 ARCoreとは、Googleが提供しているSDKです。AR機能に必須のモーショントラッキングや環境、
-光の加減など全てサポートしてくれており、SDKを利用することで既存のアプリケーションいAR機能を搭載したり、新しいARアプリケーションを構築することができます。
-OPenGLなどの専門的な知識が無くても、比較的手軽に試すことができるのも特徴です。
+光の加減など全てサポートしてくれており、SDKを利用することで既存のアプリケーションにAR機能を搭載したり、新しいARアプリケーションを構築することができます。
+OpenGLなどの専門的な知識が無くても、比較的手軽に試すことができるのも特徴です。
 
 公式の概要は下記リンクを参照してください。
 
@@ -169,6 +169,7 @@ ArFragmentが自動的に行ってくれているために言及しません。
 
 == ARCoreでできること
 ARCoreでできることは、次の３つになります。
+
 1. Sceneform
 Sceneformでは、Androidで標準で用意されているWidgetをARとして表示することができたり、図形の表示や3Dモデルを表示することが可能です。
 また、表示したオブジェクトを拡大、縮小したり、移動したりクリックイベントによって他の動作をさせることもできます。
@@ -218,7 +219,7 @@ Polyでは、3Dモデルの作成は難しいがARを表示するのに手軽に
 また、他にも無料で公開され二次創作利用できる3Dモデルキャラクターがあるので、そちらでも利用することが可能です。
 私は、今回説明するにあたってImagineVR Inc.さんよりImagin Girlsのアセットをお借りしてきました。
 
-//image[ImagineGirls][ImagineGirls公式サイト][scale=0.8]{
+//image[ImagineGirls][ImagineVR Inc.さんの公式サイト][scale=0.8]{
     ImagineGirls
 //}
 
@@ -803,6 +804,10 @@ Boothにて、画像のマーカーであるエウレ・テクノロギアが掲
 
 　また、今回のサンプルのソースコードは下記リンクからいけるのでご確認ください。
 　@<href>{https://github.com/yutaro6547/ARCoreSampleForTechBookFest, https://github.com/yutaro6547/ARCoreSampleForTechBookFest}
+
+また、文書中でも記載しておりますが、ImagineVR Inc.さんよりARのアセットをお借りしております。
+ライセンスは下記リンクになります。
+@<href>{http://imaginegirls.com/imaginegirls_user_license_jp/, http://imaginegirls.com/imaginegirls_user_license_jp/}
 
 　最後に、表紙を担当して頂いたデザイナーのKarin Iwazakiさん、一緒に頑張ったエウレ・テクノロギアのメンバーの皆さん、そして、諸々のマネジメントをして頂いた@futabooさんに感謝を。
 　それでは、また次の機会に。
