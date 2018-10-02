@@ -1,5 +1,5 @@
 
-= CLIツールを開発する
+= Go言語でのCLIツール
 
 GoでCLIツールを開発したことがある人は多くいると思います。また、業務でCLIツールが必要になったため、それを目的にGoを書き始めた人も少なくないと思います。また、Goに限らず、他のスクリプト言語でCLIツールを作成した方は本書を手にとっている人なら必ず開発した経験があるはずです。
 
@@ -7,149 +7,152 @@ GoでCLIツールを作成しはじめた人は、まずはパッケージ構成
 
 ツールのI/Fこそ、UNIX哲学を意識し、「ひとつのことをうまくやる」を徹底し、他のプログラムと協働するように開発を心がけることで、ひとつ上のツール開発者になれるでしょう。
 
-== goコマンドから理解する
+== CLIツールを開発する
 
-コマンドの最適な開発は、標準パッケージを参考に理解を深めることができます。参考にすべきコマンドは、Goを書いたことがある方なら必ず使用したことのある@<tt>{go}コマンドから解説をします。
+コマンドの最適な開発は、標準パッケージを参考に理解を深めることができます。参考にすべきコマンドは、Goを書いたことがある方なら必ず使用したことがある、@<tt>{go}コマンドの設計を理解することで、Goらしさを表現することができます。しかし、@<tt>{go}コマンドを理解するには、他のGoの機能を知っておいた方がよいため、今回は題材にしません。
 
-=== コード設計
-
-
+今回、作成途中の拙作ではございますが、QR codeを画像で生成可能なエンコード処理、また、画像から文字列を取得するためのデコード処理を実装したQR code codexツール@<fn>{fn_github_kaneshin_qrcode}にて解説をします。
+//footnote[fn_github_kaneshin_qrcode][github.com/kaneshin/qrcode: https://github.com/kaneshin/qrcode]
 
 === パッケージ構成
 
-
-== ひとつのことをうまくやる
-
-
-== 協働
-
-=== I/F設計
-
-
-=== 標準入力の受け取り
-
-
-それぞれの実装方法は簡単です。
-
-
-==== インタラクティブ
+Goのリポジトリで実行可能ファイルを作成する場合、cmdディレクトリの配下に、実行ファイル名のディレクトリを作成し、そのディレクトリにて実行可能ファイルを作成します。
 
 //emlist[][go]{
-var stdin string
-fmt.Scan(&stdin)
-fmt.Println(stdin)
+qrcode/
+├── cmd/
+│   ├── qrcode/
+│   │   └── main.go
+│   └── qrfmt/
+│       └── main.go
+├── decode.go
+├── encode.go
+├── format.go
+└── README.md
 //}
 
+今回のサンプルでは、cmdディレクトリの中に、@<tt>{qrcode}と@<tt>{qrfmt}のディレクトリを作成して実行ファイルを作成します。
 
-インタラクティブに標準入力からデータを受け取るには @<tt>{fmt.Scan} で入力待ちをします。このとき入力した値が渡した変数に格納されます。
+また、作成するツールをパッケージとしてAPI提供する場合、適切にディレクトリを作成して公開しておきます。今回の例では、qrcodeディレクトリ配下 (@<tt>{"github.com/kaneshin/qrcode"}) をそのまま使用可能なパッケージとして提供できるように設計しています。
 
-
-==== パイプ
-
-//emlist[][go]{
-body, err := ioutil.ReadAll(os.Stdin)
-fmt.Println(string(body))
-//}
-
-
-パイプで渡ってきたものは @<tt>{os.Stdin} というファイルディスクリプタにデータが入っているので、ここから取得します。
-
-
-=== インタラクティブかパイプを判定する
-
-
-パイプでファイルディスクリプタが渡ってきた場合はそのままそのファイルディスクリプタからデータを取得すれば良いので、インタラクティブな入力待ちは必要ありません。
-そんなときは @<tt>{syscall} パッケージを利用します。
-
-
-==== syscallパッケージ
+cmd配下で作成するファイルでは、ビジネスロジックとなる実装は極力避けています。今回のcmd/qrcode/main.goの例では、@<tt>{"github.com/kaneshin/qrcode"}にQR codeのCodex処理を実装しています。そのqrcodeパッケージをインポートし、実行可能ファイルでは、Encode/Decode処理を呼び出すだけの責任を負っています。
 
 //emlist[][go]{
-const ioctlReadTermios = 0x5401  // syscall.TCGETS
+var decode = flag.Bool("d", false, "decode data")
 
-// IsTerminal returns true if the given file descriptor is a terminal.
-func IsTerminal() bool {
-    fd := syscall.Stdin
-    var termios syscall.Termios
-    _, _, err := syscall.Syscall6(syscall.SYS_IOCTL, uintptr(fd), ioctlReadTermios, uintptr(unsafe.Pointer(&termios)), 0, 0, 0)
-    return err == 0
+func doEncode(dst io.Writer, src []byte) error {
+	enc := qrcode.NewEncoder(dst)
+	return enc.Encode(src)
+}
+
+func doDecode(dst io.Writer, src []byte) error {
+	buf := bytes.NewBuffer(src)
+	dec := qrcode.NewDecoder(buf)
+	return dec.Decode(dst)
+}
+
+func do(r io.Reader) error {
+	src, err := ioutil.ReadAll(r)
+	if err != nil {
+		return err
+	}
+
+	var buf bytes.Buffer
+	if *decode {
+		err = doDecode(&buf, src)
+	} else {
+		err = doEncode(&buf, src)
+	}
+	if err != nil {
+		return err
+	}
+
+	os.Stdout.Write(buf.Bytes())
+	return nil
 }
 //}
 
+このように、読み出し先となる@<tt>{io.Reader}を@<tt>{do}関数に渡して呼び出すのがコマンドの責務であり、それ以降のEncode/Decode処理はqrcodeパッケージに責務を委譲させ、そちらで処理を行います。
 
-上記の @<tt>{IsTerminal} 関数が @<tt>{true} で返ってくる場合、インタラクティブにデータを受け取る場合になります。処理としては、@<tt>{/dev/stdin} のファイルディスクリプタ値である @<tt>{syscall.Stdin} が読み込みをしているかを判定しています。
+== CLIツールの実行
 
+今回のサンプルでは、@<tt>{qrcode}と@<tt>{qrfmt}の２種類をコマンドとして作成しています。それぞれのコマンドは、別の責務を委譲されており、適切に連携を行うような設計にしています。
 
+* @<tt>{qrcode}: 標準入力、もしくは、ファイルのテキストをEncode/Decode処理し、標準出力にPNG画像ファイルを出力する
+* @<tt>{qrfmt}: QR codeのフォーマットに従った文字列を標準出力に出力する
 
-ただ、この実装は Linux に依存しており、他のPlatformで利用するには @<tt>{ioctlReadTermios} の値を適宜変更しなければいけません。
-これを自分で実装するのはちょい面倒なので、既に実装がされているものを利用します。
-
-
-==== terminalパッケージ
-
-
-golang.orgに @<tt>{golang.org/x/crypto/ssh/terminal} というパッケージが存在していて、ここにある@<href>{https://github.com/golang/crypto/blob/master/ssh/terminal/util.go#L30-L35,IsTerminal}という関数が先ほどの各Platformの要件を満たしています。
-
+このように設計することにより、下記のように、それぞれが連携した独立したツールと成り立っています。
 
 //emlist[][shell]{
-go get -u golang.org/x/crypto/ssh/terminal
+qrfmt -ssid Foo -password Bar -type WPA2 | qrcode > WiFi-Foo.png
 //}
 
-//emlist[][go]{
-import "golang.org/x/crypto/ssh/terminal"
+まさに、UNIX哲学の章にて記載した「ひとつのことをうまくやる」を実現しているI/Fです。
 
-func main() {
-    // ...
-    if terminal.IsTerminal(syscall.Stdin) {
-        // Do something ...
-    }
+=== 標準入力とファイル名
+
+CLIツールにて、標準入力からテキストを入力されることにより、プロセス間でのパイプ処理が可能なツールを作成することができます。ここの設計次第で、使われるか使われないかのツールになるでしょう。また、場合によって、ファイルからテキストを入力することもあります。それら２つのケースに対応できるI/Fをコードで実現します。
+
+//emlist[][go]{
+func run() error {
+	var name string
+	if args := flag.Args(); len(args) > 0 {
+		name = args[0]
+	}
+
+	var r io.Reader
+	switch name {
+	case "", "-":
+        // ケース：標準入力
+        // $ echo 'input' | command
+        //  or
+        // $ command -
+		r = os.Stdin
+	default:
+        // ケース：ファイル
+        // $ command FILENAME
+		f, err := os.Open(name)
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+		r = f
+	}
+
     // ...
 }
 //}
 
-=== 全体の実装
+標準入力での受け渡しは、@<tt>{os.ModeNamedPipe}で検証できますが、使用する必要はありません。あまりオススメしないパターンですが、コマンドの引数にファイルではない、実行用のテキストを渡しているツールもあるので、その場合は必要になるケースがあります。
 
 //emlist[][go]{
-package main
-
-import (
-    "fmt"
-    "io/ioutil"
-    "os"
-    "syscall"
-
-    "golang.org/x/crypto/ssh/terminal"
-)
-
 func main() {
-    if terminal.IsTerminal(syscall.Stdin) {
-        // Execute: go run main.go
-        fmt.Print("Type something then press the enter key: ")
-        var stdin string
-        fmt.Scan(&stdin)
-        fmt.Printf("Result: %s\n", stdin)
-        return
-    }
+	fi, err := os.Stdin.Stat()
+	if err != nil {
+		panic(err)
+	}
 
-    // Execute: echo "foo" | go run main.go
-    body, err := ioutil.ReadAll(os.Stdin)
-    if err != nil {
-        panic(err)
-    }
-    fmt.Printf("Result: %s\n", string(body))
+	var r io.Reader
+	if fi.Mode()&os.ModeNamedPipe == os.ModeNamedPipe {
+		r = os.Stdin
+	} else {
+		args := flag.Args()
+		if len(args) == 0 {
+			r = os.Stdin
+		} else {
+			f, err := os.Open(args[0])
+			if err != nil {
+				panic(err)
+			}
+			defer f.Close()
+			r = f
+		}
+	}
 }
 //}
 
-// ここまで記事
+このように@<tt>{os.Stdin.Stat.Mode}から判別することも可能です。
 
+Goの開発思想からすれば、Goを用いてツール開発することは重要なモチベーションでもあるため、これからもツール作成者は増えてくるでしょう。読者の方は、ぜひ、標準パッケージのコマンドの作られ方と、UNIX哲学を踏まえたI/Fの設計を意識して開発をしてください。
 
-
-
-
-
-== 適切なSTDIN/OUT
-
-// 記事
-
-Go言語でコマンドラインツールを作るときに入力を受け取るインターフェースでオプションや標準入力で受け付けることはあると思いますが、パイプで渡すことも考慮されているとクールなツールになるなと思っています。
 
