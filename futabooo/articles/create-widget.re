@@ -68,18 +68,70 @@ Run/Debug Configurationsを開き、@<strong>{Launch Options}のLaunchのプル�
 
 
 == StackViewを使ったWidgetを作る
+
+//image[stackview][stackview][scale=0.5]{
+//}
+
 StackViewをつかったWidgetのサンプルの実装が公式でも公開されています。今回は公開されているサンプルのコードをもとに紹介していきたいと思います。StackViewのようにlist形式のデータを扱う場合のWidgetでは少し複雑な処理が必要となります。そこで登場するのが次の2つのクラスです。
 
-* RemoteViewsService
-* RemoteViewsService.RemoteViewsFactory
+ * RemoteViewsService
+ * RemoteViewsService.RemoteViewsFactory
 
-普段のAndroidアプリ開発においてリストのデータを扱う場合にはArrayAdapterやRecyclerView.Adapterクラスを使って
+普段のAndroidアプリ開発においてリストのデータを扱う場合にはArrayAdapterやRecyclerView.Adapterクラスを使ってViewへのデータの表示を行いますが、Widgetの場合はさきの2つのクラスを使います。
 
-==== StackWidgetService
+ここからは実際にコードの例を示しながらStackViewを使ったWidgetの作り方について説明していきます。
+
+==== StackWidgetService 
+StackWidgetServiceはRemoteViewsServiceを継承したクラスです。RemoteViewsService.RemoteViewsFactoryを継承したStackRemoteViewsFactoryを返すようにします。
+
+//list[StackWidgetService][StackWidgetService][java]{
+public class StackWidgetService extends RemoteViewsService {
+  @Override
+  public RemoteViewsFactory onGetViewFactory(Intent intent) {
+    return new StackRemoteViewsFactory(this.getApplicationContext(), intent);
+  }
+}
+class StackRemoteViewsFactory implements
+  RemoteViewsService.RemoteViewsFactory {
+    //... include adapter-like methods here.
+    //    See the StackWidget sample.
+  }
+//}
 
 ==== StackRemoteViewsFactory
+StackRemoteViewsFactoryではonCreateでデータの取得を行います。データベースやネットワーク上からデータを取得し、データの数だけのWidgetItemを作成します。このとき、onCreateでは20秒以上の処理を実行するとANRが発生することに注意してください。@<list>{StackRemoteViewsFactory}
+
+//list[StackRemoteViewsFactory][StackRemoteViewsFactory][java]{
+class StackRemoteViewsFactory implements
+RemoteViewsService.RemoteViewsFactory {
+  public void onCreate() {
+    // In onCreate() you setup any connections / cursors to your data source. Heavy lifting,
+    // for example downloading or creating content etc, should be deferred to onDataSetChanged()
+    // or getViewAt(). Taking more than 20 seconds in this call will result in an ANR.
+    for (int i = 0; i < mCount; i++) {
+      mWidgetItems.add(new WidgetItem(i + "!"));
+    }
+    ...
+    }
+//}
+
+StackRemoteViewsFactoryのonCreateで取得したデータをViewに反映するのはgetViewAtメソッドです。@<list>{RemoteViews}普段のAdaperクラスを使った時にgetViewと同じように使います。
+//list[RemoteViews][RemoteViews][java]{
+public RemoteViews getViewAt(int position) {
+
+    // Construct a remote views item based on the app widget item XML file,
+    // and set the text based on the position.
+    RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.widget_item);
+    rv.setTextViewText(R.id.widget_item, mWidgetItems.get(position).text);
+
+    ...
+    // Return the remote views object.
+    return rv;
+}
+//}
 
 ==== StackWidgetのlayout.xml
+StackViewを使う場合のレイアウトXMLです@<list>{stackview}。データがnullの場合に表示するemptyviewは自前で用意する必要があります@<list>{emptyview}。
 //list[stackview][stackview][xml]{
 <?xml version="1.0" encoding="utf-8"?>
 <StackView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -112,10 +164,3 @@ StackViewをつかったWidgetのサンプルの実装が公式でも公開さ�
     android:textSize="20sp" />
 </FrameLayout>
 //}
-
-
-== Githab APIを使ったWidgetを作る
-
-== 既存のアプリにWidgetを追加する
-
-=== アプリ内からWidgetを追加できるようにする
